@@ -1,0 +1,12 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.2'
+    id 'java'
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+}
+
+group 'org.project'
+version '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
