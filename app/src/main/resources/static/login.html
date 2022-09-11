@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Social Logins</title>
+</head>
+<body>
+<div class="btns-container">
+  <div id="google-signin-button" class="login-btn">
+    <!--적절한 client_id와 login_uri 설정 필요-->
+    <div id="g_id_onload"
+         data-client_id="457920942728-gs5nrm600o6rpm1e1k4s1ov5kebmtmhf.apps.googleusercontent.com"
+         data-login_uri="http://localhost:8080/api/v1/auth/google"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+    </div>
+  </div>
+</div>
+<!--구글 계정으로 로그인 버튼 스크립트(reference url: https://developers.google.com/identity/gsi/web/guides/overview)-->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+<style>
+  .btns-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .btns-container > .login-btn {
+    margin-bottom: 20px;
+  }
+</style>
+</html>
