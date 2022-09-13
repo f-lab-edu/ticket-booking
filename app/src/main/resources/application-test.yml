@@ -14,3 +14,7 @@ spring:
     database: h2
     hibernate:
       ddl-auto: create
+
+  config:
+    import:
+      - "optional:secrets.yml"
