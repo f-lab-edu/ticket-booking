@@ -1,4 +1,4 @@
-package org.project;
+package org.project.ticketbooking;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
