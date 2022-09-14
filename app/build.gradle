@@ -34,6 +34,16 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+    // for WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     // for apache commons
     implementation 'org.apache.commons:commons-lang3'
+
+    // netty_resolver_dns_native for M1
+    implementation("io.netty:netty-resolver-dns-native-macos:4.1.75.Final") {
+        artifact {
+            classifier = "osx-aarch_64"
+        }
+    }
 }
