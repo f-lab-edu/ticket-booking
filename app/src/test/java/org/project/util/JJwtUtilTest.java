@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
  * <p>
  * boolean isTokenSignValid(Key key, String token);
  */
-@SuppressWarnings("ALL")
 public class JJwtUtilTest {
 
 
