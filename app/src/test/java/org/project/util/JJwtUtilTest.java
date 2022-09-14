@@ -35,11 +35,6 @@ public class JJwtUtilTest {
   private static final Date fakeFixedDate = Date.from(Instant.parse("2021-01-01T00:00:00.00Z"));
   private JwtUtil jwtUtil = new JJwtUtil();
 
-  @Test
-  void generateToken반환값_not_null_test() {
-    final String token = jwtUtil.generateToken(accessKey, "test", fakeFixedDate);
-    assertThat(token).isNotNull();
-  }
 
   @Test
   void generateToken반환값_not_empty_test() {
