@@ -179,5 +179,5 @@ gradle-app.setting
 
 
 # Ignore secrets file
-secrets.properties
+secrets*.properties
 secrets*.yml
