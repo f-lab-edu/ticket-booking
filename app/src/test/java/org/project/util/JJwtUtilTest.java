@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -37,19 +38,22 @@ public class JJwtUtilTest {
 
 
   @Test
-  void generateToken반환값_not_empty_test() {
+  @DisplayName("generateToken() 반환값이 not empty 이어야 한다.")
+  void generateToken_withValidKeyAndSubAndExpiration_shouldReturnNotEmpty() {
     final String token = jwtUtil.generateToken(accessKey, "test", fakeFixedDate);
     assertThat(token).isNotEmpty();
   }
 
   @Test
-  void generateToken반환값_not_blank_test() {
+  @DisplayName("generateToken() 반환값이 not blank 이어야 한다.")
+  void generateToken_withValidKeyAndSubAndExpiration_shouldReturnNotBlank() {
     final String token = jwtUtil.generateToken(accessKey, "test", fakeFixedDate);
     assertThat(token).isNotBlank();
   }
 
   @Test
-  void generateToken반환_토큰의_sub값_확인() {
+  @DisplayName("generateToken() 반환 토큰의 sub값이 입력한 sub 값과 같아야 한다.")
+  void generateToken_withValidKeyAndSubAndExpiration_shouldReturnTokenWithSameSub() {
     // given
     final String sub = "test";
 
@@ -62,7 +66,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void generateToken반환_토큰의_exp값_확인() {
+  @DisplayName("generateToken() 반환 토큰의 exp값이 입력한 exp 값과 같아야 한다.")
+  void generateToken_withValidKeyAndSubAndExpiration_shouldReturnTokenWithSameExp() {
     // given
     final Date exp = fakeFixedDate;
 
@@ -75,7 +80,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void generateToken에_넘긴_키_값으로_토큰_서명_체크_통과_테스트() {
+  @DisplayName("generateToken() 반환 토큰의 서명이 입력한 키로 검증 통과되어야 한다.")
+  void generateToken_withValidKeyAndSubAndExpiration_returnTokenWhichShouldBeValidatedByGivenKey() {
     // given
     final Key key = accessKey;
 
@@ -88,7 +94,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void generateToken에_넘기지_않은_키_값으로_토큰_서명_체크_실패_테스트() {
+  @DisplayName("generateToken() 반환 토큰의 서명이 입력하지 않은 키로는 검증 실패해야 한다.")
+  void generateToken_withValidKeyAndSubAndExpiration_returnTokenWhichShouldNotBeValidatedByNotGivenKey() {
     // given
     final Key key = accessKey;
     final Key wrongKey = refreshKey;
@@ -102,7 +109,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void isDateValidForTokenExpClaim에_넘긴_date값이_토큰_exp_기준에_valid하면_true_반환() {
+  @DisplayName("isDateValidForTokenExpClaim()에 넘긴 date시점에 토큰이 유효하면 true를 반환해야 한다.")
+  void isDateValidForTokenExpClaim_withValidTokenAndDate_shouldReturnTrue() {
     // given
     final Date exp = Date.from(Instant.parse("2021-01-01T00:00:01Z")); // 만료 시간이 기준 시간보다 1초 뒤
     final Date dateBeforeExp = Date.from(Instant.parse("2021-01-01T00:00:00Z"));
@@ -117,7 +125,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void isDateValidForTokenExpClaim에_넘긴_date값이_토큰_exp_기준에_invalid하면_false_반환() {
+  @DisplayName("isDateValidForTokenExpClaim()에 넘긴 date시점에 토큰이 유효하지 않으면 false를 반환해야 한다.")
+  void isDateValidForTokenExpClaim_withValidTokenAndDate_shouldReturnFalse() {
     // given
     final Date exp = Date.from(Instant.parse("2021-01-01T00:00:00Z")); // 만료 시간이 기준 시간보다 1초 전
     final Date dateAfterExp = Date.from(Instant.parse("2021-01-01T00:00:01Z"));
@@ -132,7 +141,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void isDateValidForTokenExpClaim에서_토큰_만료시간이_인자로_넘긴_date와_같으면_false_반환() {
+  @DisplayName("isDateValidForTokenExpClaim()에 넘긴 date시점이 토큰의 exp와 같으면 false를 반환해야 한다.")
+  void isDateValidForTokenExpClaim_whenDateAndExpAreTheSame_shouldReturnFalseIfDateIsSameWithTokenExp() {
     // given
     final Date exp = Date.from(Instant.parse("2021-01-01T00:00:00Z"));
     final Date dateEqualToExp = Date.from(Instant.parse("2021-01-01T00:00:00Z"));
@@ -147,7 +157,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void isDateValidForTokenExpClaim에_토큰이_아닌_스트링을_넘기면_IllegalArgumentException_발생() {
+  @DisplayName("isDateValidForTokenExpClaim()에 jwt 토큰이 아닌 문자열을 넘기면 IllegalArgumentException을 던진다.")
+  void isDateValidForTokenExpClaim_withNotJwtToken_shouldThrowIllegalArgumentException() {
     // given
     final Date exp = Date.from(Instant.parse("2021-01-01T00:00:00Z"));
     final Date dateEqualToExp = Date.from(Instant.parse("2021-01-01T00:00:00Z"));
@@ -163,7 +174,8 @@ public class JJwtUtilTest {
 
 
   @Test
-  void getTokenExpirationTime이_토큰의_exp값을_반환하는지_테스트() {
+  @DisplayName("getTokenExpirationTime()에 넘긴 토큰의 exp를 반환해야 한다.")
+  void getTokenExpirationTime_withValidToken_shouldReturnTokenExp() {
     // given
     final Date exp = fakeFixedDate;
 
@@ -176,7 +188,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void getTokenExpirationTime에_jwt_토큰이_아닌_스트링을_넘기면_IllegalArgumentException_발생() {
+  @DisplayName("getTokenExpirationTime()에 넘긴 토큰이 jwt 토큰이 아니면 IllegalArgumentException을 던진다.")
+  void getTokenExpirationTime_withNotJwtToken_shouldThrowIllegalArgumentException() {
     // given
     final String token = "not a token";
 
@@ -189,7 +202,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void getTokenSub에서_토큰의_sub값을_반환하는지_테스트() {
+  @DisplayName("getTokenSub()에 넘긴 토큰의 sub를 반환해야 한다.")
+  void getTokenSub_withValidToken_shouldReturnTokenSub() {
     // given
     final String sub = "test";
 
@@ -202,7 +216,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void getTokenSub에_jwt_토큰이_아닌_스트링을_넘기면_IllegalArgumentException_발생() {
+  @DisplayName("getTokenSub()에 넘긴 토큰이 jwt 토큰이 아니면 IllegalArgumentException을 던진다.")
+  void getTokenSub_withNotJwtToken_shouldThrowIllegalArgumentException() {
     // given
     final String token = "not a token";
 
@@ -214,7 +229,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void isTokenSignValid에_넘긴_key가_토큰_서명과_일치하는_경우_true_반환() {
+  @DisplayName("isTokenSignValid()에 넘긴 토큰의 서명이 주어진 키에 대해 유효하면 true를 반환해야 한다.")
+  void isTokenSignValid_withValidTokenAndMatchedKey_shouldReturnTrue() {
     // given
     final Key key = accessKey;
     final String token = jwtUtil.generateToken(key, "test", fakeFixedDate);
@@ -227,7 +243,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void isTokenSignValid에_넘긴_key가_토큰_서명과_일치하지_않는_경우_false_반환() {
+  @DisplayName("isTokenSignValid()에 넘긴 토큰의 서명이 주어진 키에 대해 유효하지 않으면 false를 반환해야 한다.")
+  void isTokenSignValid_withValidTokenAndNotMatchedKey_shouldReturnFalse() {
     // given
     final Key key = accessKey;
     final Key wrongKey = refreshKey;
@@ -241,7 +258,8 @@ public class JJwtUtilTest {
   }
 
   @Test
-  void isTokenSignValid에_jwt가_아닌_string을_넘기면_IllegalArgumentException_발생() {
+  @DisplayName("isTokenSignValid()에 넘긴 토큰이 jwt 토큰이 아니면 IllegalArgumentException을 던진다.")
+  void isTokenSignValid_withNotJwtToken_shouldThrowIllegalArgumentException() {
     // given
     final Key key = accessKey;
     final String token = "test";
