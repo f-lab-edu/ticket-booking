@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * boolean isTokenSignValid(Key key, String token);
  */
-public class JJwtUtilTest {
+public class JJwtServiceTest {
 
 
   private static final String ACCESS_TOKEN_SECRET = "access_token_secret must be at least 256 bits for HS256 algorithm";
@@ -34,20 +34,20 @@ public class JJwtUtilTest {
   private static final Key refreshKey = Keys.hmacShaKeyFor(REFRESH_TOKEN_SECRET.getBytes());
 
   private static final Date fakeFixedDate = Date.from(Instant.parse("2021-01-01T00:00:00.00Z"));
-  private JwtUtil jwtUtil = new JJwtUtil();
+  private JwtService jwtService = new JJwtService();
 
 
   @Test
   @DisplayName("generateToken() 반환값이 not empty 이어야 한다.")
   void generateToken_withValidKeyAndSubAndExpiration_shouldReturnNotEmpty() {
-    final String token = jwtUtil.generateToken(accessKey, "test", fakeFixedDate);
+    final String token = jwtService.generateToken(accessKey, "test", fakeFixedDate);
     assertThat(token).isNotEmpty();
   }
 
   @Test
   @DisplayName("generateToken() 반환값이 not blank 이어야 한다.")
   void generateToken_withValidKeyAndSubAndExpiration_shouldReturnNotBlank() {
-    final String token = jwtUtil.generateToken(accessKey, "test", fakeFixedDate);
+    final String token = jwtService.generateToken(accessKey, "test", fakeFixedDate);
     assertThat(token).isNotBlank();
   }
 
@@ -58,10 +58,10 @@ public class JJwtUtilTest {
     final String sub = "test";
 
     // when
-    final String token = jwtUtil.generateToken(accessKey, sub, fakeFixedDate);
+    final String token = jwtService.generateToken(accessKey, sub, fakeFixedDate);
 
     // then
-    final String tokenSub = jwtUtil.getTokenSub(accessKey, token);
+    final String tokenSub = jwtService.getTokenSub(accessKey, token);
     assertThat(tokenSub).isEqualTo(sub);
   }
 
@@ -72,10 +72,10 @@ public class JJwtUtilTest {
     final Date exp = fakeFixedDate;
 
     // when
-    final String token = jwtUtil.generateToken(accessKey, "test", exp);
+    final String token = jwtService.generateToken(accessKey, "test", exp);
 
     // then
-    final Date tokenExp = jwtUtil.getTokenExpirationTime(accessKey, token);
+    final Date tokenExp = jwtService.getTokenExpirationTime(accessKey, token);
     assertThat(tokenExp).isEqualTo(exp);
   }
 
@@ -86,10 +86,10 @@ public class JJwtUtilTest {
     final Key key = accessKey;
 
     // when
-    final String token = jwtUtil.generateToken(key, "test", fakeFixedDate);
+    final String token = jwtService.generateToken(key, "test", fakeFixedDate);
 
     // then
-    final boolean isTokenSignValid = jwtUtil.isTokenSignValid(key, token);
+    final boolean isTokenSignValid = jwtService.isTokenSignValid(key, token);
     assertThat(isTokenSignValid).isTrue();
   }
 
@@ -101,10 +101,10 @@ public class JJwtUtilTest {
     final Key wrongKey = refreshKey;
 
     // when
-    final String token = jwtUtil.generateToken(key, "test", fakeFixedDate);
+    final String token = jwtService.generateToken(key, "test", fakeFixedDate);
 
     // then
-    final boolean isTokenSignValid = jwtUtil.isTokenSignValid(wrongKey, token);
+    final boolean isTokenSignValid = jwtService.isTokenSignValid(wrongKey, token);
     assertThat(isTokenSignValid).isFalse();
   }
 
@@ -114,10 +114,10 @@ public class JJwtUtilTest {
     // given
     final Date exp = Date.from(Instant.parse("2021-01-01T00:00:01Z")); // 만료 시간이 기준 시간보다 1초 뒤
     final Date dateBeforeExp = Date.from(Instant.parse("2021-01-01T00:00:00Z"));
-    final String token = jwtUtil.generateToken(accessKey, "test", exp);
+    final String token = jwtService.generateToken(accessKey, "test", exp);
 
     // when
-    final boolean isTokenExpirationBeforeDate = jwtUtil.isDateValidForTokenExpClaim(accessKey,
+    final boolean isTokenExpirationBeforeDate = jwtService.isDateValidForTokenExpClaim(accessKey,
         token, dateBeforeExp);
 
     // then
@@ -130,10 +130,10 @@ public class JJwtUtilTest {
     // given
     final Date exp = Date.from(Instant.parse("2021-01-01T00:00:00Z")); // 만료 시간이 기준 시간보다 1초 전
     final Date dateAfterExp = Date.from(Instant.parse("2021-01-01T00:00:01Z"));
-    final String token = jwtUtil.generateToken(accessKey, "test", exp);
+    final String token = jwtService.generateToken(accessKey, "test", exp);
 
     // when
-    final boolean isTokenExpirationBeforeDate = jwtUtil.isDateValidForTokenExpClaim(accessKey,
+    final boolean isTokenExpirationBeforeDate = jwtService.isDateValidForTokenExpClaim(accessKey,
         token, dateAfterExp);
 
     // then
@@ -146,10 +146,10 @@ public class JJwtUtilTest {
     // given
     final Date exp = Date.from(Instant.parse("2021-01-01T00:00:00Z"));
     final Date dateEqualToExp = Date.from(Instant.parse("2021-01-01T00:00:00Z"));
-    final String token = jwtUtil.generateToken(accessKey, "test", exp);
+    final String token = jwtService.generateToken(accessKey, "test", exp);
 
     // when
-    final boolean isTokenExpirationBeforeDate = jwtUtil.isDateValidForTokenExpClaim(accessKey,
+    final boolean isTokenExpirationBeforeDate = jwtService.isDateValidForTokenExpClaim(accessKey,
         token, dateEqualToExp);
 
     // then
@@ -165,8 +165,9 @@ public class JJwtUtilTest {
     final String token = "not a token";
 
     // when
-    final Throwable throwable = catchThrowable(() -> jwtUtil.isDateValidForTokenExpClaim(accessKey,
-        token, dateEqualToExp));
+    final Throwable throwable = catchThrowable(
+        () -> jwtService.isDateValidForTokenExpClaim(accessKey,
+            token, dateEqualToExp));
 
     // then
     assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
@@ -180,10 +181,10 @@ public class JJwtUtilTest {
     final Date exp = fakeFixedDate;
 
     // when
-    final String token = jwtUtil.generateToken(accessKey, "test", exp);
+    final String token = jwtService.generateToken(accessKey, "test", exp);
 
     // then
-    final Date tokenExp = jwtUtil.getTokenExpirationTime(accessKey, token);
+    final Date tokenExp = jwtService.getTokenExpirationTime(accessKey, token);
     assertThat(tokenExp).isEqualTo(exp);
   }
 
@@ -194,7 +195,7 @@ public class JJwtUtilTest {
     final String token = "not a token";
 
     // when
-    final Throwable throwable = catchThrowable(() -> jwtUtil.getTokenExpirationTime(accessKey,
+    final Throwable throwable = catchThrowable(() -> jwtService.getTokenExpirationTime(accessKey,
         token));
 
     // then
@@ -208,10 +209,10 @@ public class JJwtUtilTest {
     final String sub = "test";
 
     // when
-    final String token = jwtUtil.generateToken(accessKey, sub, fakeFixedDate);
+    final String token = jwtService.generateToken(accessKey, sub, fakeFixedDate);
 
     // then
-    final String tokenSub = jwtUtil.getTokenSub(accessKey, token);
+    final String tokenSub = jwtService.getTokenSub(accessKey, token);
     assertThat(tokenSub).isEqualTo(sub);
   }
 
@@ -222,7 +223,7 @@ public class JJwtUtilTest {
     final String token = "not a token";
 
     // when
-    final Throwable throwable = catchThrowable(() -> jwtUtil.getTokenSub(accessKey, token));
+    final Throwable throwable = catchThrowable(() -> jwtService.getTokenSub(accessKey, token));
 
     // then
     assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
@@ -233,10 +234,10 @@ public class JJwtUtilTest {
   void isTokenSignValid_withValidTokenAndMatchedKey_shouldReturnTrue() {
     // given
     final Key key = accessKey;
-    final String token = jwtUtil.generateToken(key, "test", fakeFixedDate);
+    final String token = jwtService.generateToken(key, "test", fakeFixedDate);
 
     // when
-    final boolean isTokenSignValid = jwtUtil.isTokenSignValid(key, token);
+    final boolean isTokenSignValid = jwtService.isTokenSignValid(key, token);
 
     // then
     assertThat(isTokenSignValid).isTrue();
@@ -248,10 +249,10 @@ public class JJwtUtilTest {
     // given
     final Key key = accessKey;
     final Key wrongKey = refreshKey;
-    final String token = jwtUtil.generateToken(key, "test", fakeFixedDate);
+    final String token = jwtService.generateToken(key, "test", fakeFixedDate);
 
     // when
-    final boolean isTokenSignValid = jwtUtil.isTokenSignValid(wrongKey, token);
+    final boolean isTokenSignValid = jwtService.isTokenSignValid(wrongKey, token);
 
     // then
     assertThat(isTokenSignValid).isFalse();
@@ -265,7 +266,7 @@ public class JJwtUtilTest {
     final String token = "test";
 
     // when
-    final Throwable throwable = catchThrowable(() -> jwtUtil.isTokenSignValid(key, token));
+    final Throwable throwable = catchThrowable(() -> jwtService.isTokenSignValid(key, token));
 
     // then
     assertThat(throwable).isInstanceOf(IllegalArgumentException.class);

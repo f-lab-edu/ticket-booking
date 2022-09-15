@@ -3,7 +3,7 @@ package org.project.util;
 import java.security.Key;
 import java.util.Date;
 
-public interface JwtUtil {
+public interface JwtService {
 
   /**
    * 주어진 sub와 expiration을 클레임으로 가지고, key로 서명된 jws를 반환

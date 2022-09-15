@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Jwts;
 
 @Service
-public class JJwtUtil implements JwtUtil {
+public class JJwtService implements JwtService {
 
 
   @Override
