@@ -10,7 +10,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-public class UserInfoResponse {
+public class GoogleUserInfoResponse {
 
   /**
    * The user's email address.

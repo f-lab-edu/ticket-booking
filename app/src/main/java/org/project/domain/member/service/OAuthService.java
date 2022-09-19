@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.project.domain.member.domain.Member;
 import org.project.domain.member.dto.AuthTokens;
 import org.project.domain.member.dto.OAuthAccessTokenResponse;
-import org.project.domain.member.dto.UserInfoResponse;
+import org.project.domain.member.dto.GoogleUserInfoResponse;
 import org.project.domain.member.repository.MemberRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +102,7 @@ public class OAuthService {
 
     // Request google user info
     String googleAccessToken = response.getAccessToken();
-    UserInfoResponse userInfo = getGoogleUserInfo(googleAccessToken);
+    GoogleUserInfoResponse userInfo = getGoogleUserInfo(googleAccessToken);
 
     // Get google email address from user info
     String email = userInfo.getEmail();
@@ -117,13 +117,13 @@ public class OAuthService {
         .compact();
   }
 
-  private UserInfoResponse getGoogleUserInfo(String accessToken) {
+  private GoogleUserInfoResponse getGoogleUserInfo(String accessToken) {
     return webClient
         .get()
         .uri("https://www.googleapis.com/userinfo/v2/me")
         .header("Authorization", "Bearer " + accessToken)
         .retrieve()
-        .bodyToMono(UserInfoResponse.class)
+        .bodyToMono(GoogleUserInfoResponse.class)
         .block();
   }
 
