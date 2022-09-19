@@ -22,6 +22,9 @@ public class OAuthAccessTokenResponse {
   private String expiresIn;
   @JsonProperty("refresh_token")
   private String refreshToken;
+  @JsonProperty("refresh_token_expires_in")
+  private String refreshTokenExpiresIn;
+  @JsonProperty("scope")
   private String scope;
 
 }
