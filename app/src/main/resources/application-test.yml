@@ -17,4 +17,4 @@ spring:
 
   config:
     import:
-      - "optional:secrets.yml"
+      - "optional:secrets-test.yml"
