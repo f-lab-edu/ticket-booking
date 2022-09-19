@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>Social Logins</title>
+</head>
+<body>
+<div class="btns-container">
+  <div id="google-signin-button" class="login-btn">
+    <button type="button">
+      <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${googleClientId},redirect_uri=${googleRedirectUri},response_type='code',scope='https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile')}">
+        Google Login
+      </a>
+    </button>
+  </div>
+</div>
+</body>
+<style>
+  .btns-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .btns-container > .login-btn {
+    margin-bottom: 20px;
+  }
+</style>
+</html>
