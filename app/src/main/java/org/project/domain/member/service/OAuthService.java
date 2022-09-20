@@ -110,6 +110,12 @@ public class OAuthService {
   }
 
   String generateToken(Key key, Member memberInRepository, Date exp) {
+    if (memberInRepository == null) {
+      throw new IllegalArgumentException("Member must not be null");
+    }
+    if (exp == null) {
+      throw new IllegalArgumentException("Expiration date must not be null");
+    }
     return Jwts.builder()
         .setSubject(memberInRepository.getId().toString())
         .setExpiration(exp)
