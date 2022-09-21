@@ -1,7 +1,11 @@
 package org.project.domain.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -9,7 +13,11 @@ import lombok.ToString;
  * href="googleapis.com/discovery/v1/apis/oauth2/v2/rest">googleapis.com/discovery/v1/apis/oauth2/v2/rest</a>
  */
 @Getter
+@Setter
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class GoogleUserInfoResponse {
 
   /**

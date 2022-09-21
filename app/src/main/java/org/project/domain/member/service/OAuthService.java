@@ -75,6 +75,9 @@ public class OAuthService {
 
 
   public AuthTokens loginWithGoogle(String code) {
+    if (code == null) {
+      throw new IllegalArgumentException("Authorization code is null");
+    }
 
     // Get Google Email
     String email = getGoogleEmail(code);
@@ -116,8 +119,7 @@ public class OAuthService {
     GoogleUserInfoResponse userInfo = oAuthWebClientService.getGoogleUserInfo(googleAccessToken);
 
     // Get google email address from user info
-    String email = userInfo.getEmail();
-    return email;
+    return userInfo.getEmail();
   }
 
   String generateToken(Key key, Member memberInRepository, Date exp) {
@@ -134,28 +136,5 @@ public class OAuthService {
         .compact();
   }
 
-  private GoogleUserInfoResponse getGoogleUserInfo(String accessToken) {
-    return webClient
-        .get()
-        .uri("https://www.googleapis.com/userinfo/v2/me")
-        .header("Authorization", "Bearer " + accessToken)
-        .retrieve()
-        .bodyToMono(GoogleUserInfoResponse.class)
-        .block();
-  }
 
-  private OAuthAccessTokenResponse getGoogleAccessToken(String code) {
-    return webClient
-        .post()
-        .uri("https://oauth2.googleapis.com/token")
-        .header("Content-Type", "application/x-www-form-urlencoded")
-        .body(BodyInserters.fromFormData("code", code)
-            .with("client_id", googleClientId)
-            .with("client_secret", googleClientSecret)
-            .with("redirect_uri", googleRedirectUri)
-            .with("grant_type", "authorization_code"))
-        .retrieve()
-        .bodyToMono(OAuthAccessTokenResponse.class)
-        .block();
-  }
 }

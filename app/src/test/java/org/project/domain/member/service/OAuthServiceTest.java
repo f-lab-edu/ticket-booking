@@ -1,120 +1,277 @@
 package org.project.domain.member.service;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.time.Instant;
-import java.util.Date;
+import java.util.Map;
+import javax.crypto.SecretKey;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.project.domain.member.domain.Member;
+import org.project.domain.member.dto.AuthTokens;
+import org.project.domain.member.dto.GoogleUserInfoResponse;
+import org.project.domain.member.dto.OAuthAccessTokenResponse;
 import org.project.domain.member.repository.MemberRepository;
+import org.project.util.JwtService;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class OAuthServiceTest {
 
   // member repository stub
-  private MemberRepository memberRepository = mock(MemberRepository.class);
+  private final MemberRepository memberRepository = mock(MemberRepository.class);
 
-  OAuthService oAuthService = new OAuthService(
+  private final OAuthWebClientService oAuthWebClientService = mock(OAuthWebClientService.class);
+
+  private final JwtService jwtService = mock(JwtService.class);
+
+  private final Map<String, Boolean> mockRefreshTokens = mock(Map.class);
+
+  private final String googleClientId = "googleClientId";
+  private final String googleClientSecret = "googleClientSecret";
+  private final String googleRedirectUri = "googleRedirectUri";
+  private final String kakaoClientId = "kakaoClientId";
+  private final String kakaoClientSecret = "kakaoClientSecret";
+  private final String kakaoRedirectUri = "kakaoRedirectUri";
+  private final String accessSecret = "accessSecret";
+  private final String refreshSecret = "refreshSecret";
+  private final Long accessExpiration = 1000L;
+  private final Long refreshExpiration = 2000L;
+
+  private final OAuthService oAuthService = new OAuthService(
+      oAuthWebClientService,
+      jwtService,
       memberRepository,
-      "dummy google client id",
-      "dummy google client secret",
-      "dummy google redirect uri",
-      "access secret",
-      "refresh secret",
-      1000L,
-      2000L
+      mockRefreshTokens,
+      googleClientId,
+      googleClientSecret,
+      googleRedirectUri,
+      kakaoClientId,
+      kakaoClientSecret,
+      kakaoRedirectUri,
+      accessSecret,
+      refreshSecret,
+      accessExpiration,
+      refreshExpiration
+
   );
 
+
+  void mockAll() {
+
+    given(oAuthWebClientService.getGoogleAccessToken(anyString(), anyString(), anyString(),
+        anyString())).willReturn(OAuthAccessTokenResponse.builder().accessToken("").build());
+    given(oAuthWebClientService.getGoogleUserInfo(anyString())).willReturn(
+        GoogleUserInfoResponse.builder().email("").build());
+    given(memberRepository.findByEmailAndProvider(anyString(), anyString())).willReturn(
+        Member.builder().id(10L).email("").provider("").build());
+    given(memberRepository.save(any())).willReturn(
+        Member.builder().id(21L).email("").provider("").build());
+    given(jwtService.generateToken(any(), anyString(), any())).willReturn("token");
+    given(mockRefreshTokens.put(anyString(), anyBoolean())).willReturn(true);
+  }
+
   @Test
-  @DisplayName("모든 파라미터가 올바르게 주어졌을 때 토큰을 생성한다")
-  public void generateToken_whenEveryParamsProper_returnNotNullToken() {
+  @DisplayName("loginWithGoogle은 null code를 받는 경우 IllegalArgumentException을 던진다.")
+  public void loginWithGoogle_throwsIllegalArgumentException_whenNullCodeIsGiven() {
     // given
-    Member member = new Member(10L, "", "");
-    Date exp = Date.from(Instant.parse("2021-01-01T00:00:00.00Z"));
-    Key key = Keys.hmacShaKeyFor(
-        "12345678901234567890123456789012".getBytes(StandardCharsets.UTF_8));
+    String code = null;
 
     // when
-    String token = oAuthService.generateToken(key, member, exp);
+    Throwable throwable = catchThrowable(() -> oAuthService.loginWithGoogle(code));
 
     // then
-    Assertions.assertThat(token).isInstanceOf(String.class);
+    assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
-  @DisplayName("member가 null이면 generateToken은 IAE를 던진다")
-  public void generateToken_givenNullMember_throwsNullPointerException() {
+  @DisplayName("loginWithGoogle은 주입받은 client id, client secret, redirect uri, 요청 받은 code를 이용해 google api에 요청을 보낸다.")
+  public void loginWithGoogle_callsGetGoogleAccessToken_withGivenVariables() {
     // given
-    Member member = null;
-    Date exp = Date.from(Instant.parse("2021-01-01T00:00:00.00Z"));
-    Key key = Keys.hmacShaKeyFor(
-        "refresh secret must be longer than 256 bitsssssssssssssssss".getBytes(
-            StandardCharsets.UTF_8));
-
-    // when & then
-    Assertions.assertThatThrownBy(() -> oAuthService.generateToken(key, member, exp))
-        .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  @DisplayName("key가 null이면 generateToken은 IAE를 던진다")
-  public void generateToken_givenNullKey_throwsNullPointerException() {
-    // given
-    Member member = new Member(10L, "", "");
-    Date exp = Date.from(Instant.parse("2021-01-01T00:00:00.00Z"));
-    Key key = null;
-
-    // when & then
-    Assertions.assertThatThrownBy(() -> oAuthService.generateToken(key, member, exp))
-        .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  @DisplayName("exp가 null이면 generateToken은 IAE를 던진다")
-  public void generateToken_givenNullExp_throwsNullPointerException() {
-    // given
-    Member member = new Member(10L, "", "");
-    Date exp = null;
-    Key key = Keys.hmacShaKeyFor(
-        "refresh secret must be longer than 256 bitsssssssssssssssss".getBytes(
-            StandardCharsets.UTF_8));
-
-    // when & then
-    Assertions.assertThatThrownBy(() -> oAuthService.generateToken(key, member, exp))
-        .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  @DisplayName("유효한 파라미터가 들어왔을 때 반환된 토큰은 주어진 파라미터와 일치해야 한다")
-  public void generateToken_returns_token_with_proper_sub_claim() {
-    // given
-    Member member = new Member(10L, "test@test.com", "google");
-    Date exp = Date.from(Instant.parse("2021-01-01T00:00:00.00Z"));
-    Key key = Keys.hmacShaKeyFor(
-        "refresh secret must be longer than 256 bitsssssssssssssssss".getBytes(
-            StandardCharsets.UTF_8));
+    String code = "code";
+    mockAll();
+    GoogleUserInfoResponse test = oAuthWebClientService.getGoogleUserInfo("access_token");
+    System.out.println("tetst = " + test);
 
     // when
-    String refreshToken = oAuthService.generateToken(key, member, exp);
-
-    // then
-    String subInToken;
-    try {
-      subInToken = Jwts.parserBuilder()
-          .setSigningKey(key)
-          .build()
-          .parseClaimsJws(refreshToken)
-          .getBody()
-          .getSubject();
-    } catch (ExpiredJwtException e) {
-      subInToken = e.getClaims().getSubject();
+    try (MockedStatic<Keys> utilities = mockStatic(Keys.class)) {
+      utilities.when(() -> Keys.hmacShaKeyFor(any())).thenReturn(mock(SecretKey.class));
+      oAuthService.loginWithGoogle(code);
     }
-    Long idInSub = Long.parseLong(subInToken);
-    assertEquals(member.getId(), idInSub);
+
+    // then
+    verify(oAuthWebClientService).getGoogleAccessToken(
+        code,
+        googleClientId,
+        googleClientSecret,
+        googleRedirectUri
+    );
+  }
+
+  @Test
+  @DisplayName("loginWithGoogle은 구글에서 응답받은 access token을 이용해 getGoogleUserInfo를 호출한다")
+  public void getGoogleEmail_callsGetGoogleUserInfo_withGivenAccessToken() {
+    // given
+    String accessToken = "access_token";
+    mockAll();
+    given(oAuthWebClientService.getGoogleAccessToken(anyString(), anyString(), anyString(),
+        anyString())).willReturn(
+        OAuthAccessTokenResponse.builder().accessToken(accessToken).build());
+
+    // when
+    try (MockedStatic<Keys> utilities = mockStatic(Keys.class)) {
+      utilities.when(() -> Keys.hmacShaKeyFor(any())).thenReturn(mock(SecretKey.class));
+      oAuthService.loginWithGoogle("code");
+    }
+
+    // then
+    verify(oAuthWebClientService).getGoogleUserInfo(accessToken);
+  }
+
+  @Test
+  @DisplayName("loginWithGoogle은 구글에서 응답받은 email을 이용해 memberRepository의 findByEmailAndProvider를 호출한다.")
+  public void getGoogleEmail_callsFindByEmailAndProvider_withGivenEmail() {
+    // given
+    String email = "email";
+    mockAll();
+    given(oAuthWebClientService.getGoogleUserInfo(anyString())).willReturn(
+        GoogleUserInfoResponse.builder().email(email).build());
+
+    // when
+    try (MockedStatic<Keys> utilities = mockStatic(Keys.class)) {
+      utilities.when(() -> Keys.hmacShaKeyFor(any())).thenReturn(mock(SecretKey.class));
+      oAuthService.loginWithGoogle("code");
+    }
+
+    // then
+    verify(memberRepository).findByEmailAndProvider(email, "google");
+  }
+
+  @Test
+  @DisplayName("loginWithGoogle은 받은 email의 유저가 memberRepository에 존재하지 않는 경우 memberRepository의 save를 호출한다.")
+  public void getGoogleEmail_callsSave_whenUserDoesNotExist() {
+    // given
+    String email = "email";
+    mockAll();
+    given(oAuthWebClientService.getGoogleUserInfo(anyString())).willReturn(
+        GoogleUserInfoResponse.builder().email(email).build());
+    given(memberRepository.findByEmailAndProvider(anyString(), anyString())).willReturn(null);
+
+    // when
+    try (MockedStatic<Keys> utilities = mockStatic(Keys.class)) {
+      utilities.when(() -> Keys.hmacShaKeyFor(any())).thenReturn(mock(SecretKey.class));
+      oAuthService.loginWithGoogle("code");
+    }
+
+    // then
+    verify(memberRepository).save(any());
+  }
+
+  @Test
+  @DisplayName("loginWithGoogle은 받은 email의 유저가 memberRepository에 존재하는 경우 memberRepository의 save를 호출하지 않는다.")
+  public void getGoogleEmail_doesNotCallSave_whenUserExists() {
+    // given
+    String email = "email";
+    mockAll();
+    given(oAuthWebClientService.getGoogleUserInfo(anyString())).willReturn(
+        GoogleUserInfoResponse.builder().email(email).build());
+    given(memberRepository.findByEmailAndProvider(email, "google")).willReturn(
+        Member.builder().id(10L).email("").provider("").build());
+
+    // when
+    try (MockedStatic<Keys> utilities = mockStatic(Keys.class)) {
+      utilities.when(() -> Keys.hmacShaKeyFor(any())).thenReturn(mock(SecretKey.class));
+      oAuthService.loginWithGoogle("code");
+    }
+
+    // then
+    verify(memberRepository, never()).save(any());
+  }
+
+  @Test
+  @DisplayName("loginWithGoogle은 적절한 파라미터로 generateToken을 호출한다.")
+  public void getGoogleEmail_callsGenerateToken_withProperParameters() {
+    // given
+    mockAll();
+    String email = "email";
+    Member member = Member.builder().id(10L).email(email).provider("google").build();
+    given(oAuthWebClientService.getGoogleUserInfo(anyString())).willReturn(
+        GoogleUserInfoResponse.builder().email(email).build());
+    given(memberRepository.findByEmailAndProvider(anyString(), anyString())).willReturn(member);
+    SecretKey accessSecretKey = mock(SecretKey.class);
+    SecretKey refreshSecretKey = mock(SecretKey.class);
+
+    // when
+    try (MockedStatic<Keys> utilities = mockStatic(Keys.class)) {
+      utilities.when(() -> Keys.hmacShaKeyFor(any()))
+          .thenReturn(accessSecretKey)
+          .thenReturn(refreshSecretKey);
+      oAuthService.loginWithGoogle("code");
+    }
+
+    // then
+    verify(jwtService).generateToken(eq(accessSecretKey), eq(member.getId().toString()), any());
+    verify(jwtService).generateToken(eq(refreshSecretKey), eq(member.getId().toString()), any());
+  }
+
+  @Test
+  @DisplayName("loginWithGoogle은 generateToken에서 반환한 refreshToken을 refreshTokens에 저장한다.")
+  public void getGoogleEmail_savesRefreshToken() {
+    // given
+    mockAll();
+    String email = "email";
+    Member member = Member.builder().id(10L).email(email).provider("google").build();
+    given(oAuthWebClientService.getGoogleUserInfo(anyString())).willReturn(
+        GoogleUserInfoResponse.builder().email(email).build());
+    given(memberRepository.findByEmailAndProvider(anyString(), anyString())).willReturn(member);
+    SecretKey accessSecretKey = mock(SecretKey.class);
+    SecretKey refreshSecretKey = mock(SecretKey.class);
+    String refreshToken = "refresh_token";
+    given(jwtService.generateToken(any(), any(), any())).willReturn(refreshToken);
+
+    // when
+    try (MockedStatic<Keys> utilities = mockStatic(Keys.class)) {
+      utilities.when(() -> Keys.hmacShaKeyFor(any()))
+          .thenReturn(accessSecretKey)
+          .thenReturn(refreshSecretKey);
+      oAuthService.loginWithGoogle("code");
+    }
+
+    // then
+    verify(mockRefreshTokens).put(refreshToken, true);
+  }
+
+  @Test
+  @DisplayName("loginWithGoogle은 유저의 정보로 생성된 AuthTokens를 반환한다.")
+  public void getGoogleEmail_returnsAuthTokens() {
+    // given
+    mockAll();
+    String email = "email";
+    Member member = Member.builder().id(10L).email(email).provider("google").build();
+    given(oAuthWebClientService.getGoogleUserInfo(anyString())).willReturn(
+        GoogleUserInfoResponse.builder().email(email).build());
+    given(memberRepository.findByEmailAndProvider(anyString(), anyString())).willReturn(member);
+    SecretKey accessSecretKey = mock(SecretKey.class);
+    SecretKey refreshSecretKey = mock(SecretKey.class);
+    String accessToken = "access_token";
+    String refreshToken = "refresh_token";
+    given(jwtService.generateToken(any(), any(), any())).willReturn(accessToken, refreshToken);
+
+    try (MockedStatic<Keys> utilities = mockStatic(Keys.class)) {
+      // when
+      utilities.when(() -> Keys.hmacShaKeyFor(any()))
+          .thenReturn(accessSecretKey)
+          .thenReturn(refreshSecretKey);
+      AuthTokens authTokens = oAuthService.loginWithGoogle("code");
+
+      // then
+      assertThat(authTokens.getAccess()).isEqualTo(accessToken);
+      assertThat(authTokens.getRefresh()).isEqualTo(refreshToken);
+    }
   }
 }
