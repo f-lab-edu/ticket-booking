@@ -2,7 +2,10 @@ package org.project.domain.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -11,6 +14,9 @@ import lombok.ToString;
  */
 @Getter
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class KakaoAccount {
 
   /**
