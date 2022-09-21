@@ -28,4 +28,11 @@ public class OAuthController {
     return ResponseEntity.ok(oAuthService.loginWithGoogle(code));
   }
 
+  @GetMapping("/kakao")
+  public ResponseEntity<AuthTokens> loginWithKakao(@RequestParam(required = false) String code,
+      @RequestParam(required = false) String error) {
+
+    return ResponseEntity.ok(oAuthService.loginWithKakao(code));
+  }
+
 }
