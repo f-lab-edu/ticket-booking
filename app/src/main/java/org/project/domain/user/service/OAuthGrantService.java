@@ -1,7 +1,6 @@
-package org.project.domain.member.service;
+package org.project.domain.user.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class OAuthGrantService {

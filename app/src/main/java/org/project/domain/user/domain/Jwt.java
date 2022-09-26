@@ -1,4 +1,4 @@
-package org.project.domain.member.domain;
+package org.project.domain.user.domain;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

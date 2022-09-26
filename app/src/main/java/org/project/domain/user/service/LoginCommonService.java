@@ -1,9 +1,9 @@
-package org.project.domain.member.service;
+package org.project.domain.user.service;
 
 import java.time.Clock;
-import org.project.domain.member.domain.User;
-import org.project.domain.member.dto.AuthTokens;
-import org.project.domain.member.repository.RefreshTokenRepository;
+import org.project.domain.user.domain.User;
+import org.project.domain.user.dto.AuthTokens;
+import org.project.domain.user.repository.RefreshTokenRepository;
 import org.project.util.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

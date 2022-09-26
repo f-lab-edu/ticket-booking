@@ -1,4 +1,4 @@
-package org.project.domain.member.controller;
+package org.project.domain.user.controller;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -10,10 +10,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.project.domain.member.domain.Jwt;
-import org.project.domain.member.dto.AuthTokens;
-import org.project.domain.member.dto.OAuthLoginResponse;
-import org.project.domain.member.service.OAuthLoginService;
+import org.project.domain.user.domain.Jwt;
+import org.project.domain.user.dto.AuthTokens;
+import org.project.domain.user.dto.OAuthLoginResponse;
+import org.project.domain.user.service.OAuthLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;

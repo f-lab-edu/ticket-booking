@@ -1,6 +1,6 @@
-package org.project.domain.member.repository;
+package org.project.domain.user.repository;
 
-import org.project.domain.member.domain.Jwt;
+import org.project.domain.user.domain.Jwt;
 import org.springframework.stereotype.Repository;
 
 @Repository

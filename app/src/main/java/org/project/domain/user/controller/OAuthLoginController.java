@@ -1,9 +1,9 @@
-package org.project.domain.member.controller;
+package org.project.domain.user.controller;
 
-import org.project.domain.member.dto.AuthTokens;
-import org.project.domain.member.dto.OAuthLoginQueryParameter;
-import org.project.domain.member.dto.OAuthLoginResponse;
-import org.project.domain.member.service.OAuthLoginService;
+import org.project.domain.user.dto.AuthTokens;
+import org.project.domain.user.dto.OAuthLoginQueryParameter;
+import org.project.domain.user.dto.OAuthLoginResponse;
+import org.project.domain.user.service.OAuthLoginService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

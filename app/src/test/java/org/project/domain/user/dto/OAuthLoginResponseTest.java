@@ -1,10 +1,10 @@
-package org.project.domain.member.dto;
+package org.project.domain.user.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.project.domain.member.domain.Jwt;
+import org.project.domain.user.domain.Jwt;
 
 public class OAuthLoginResponseTest {
 

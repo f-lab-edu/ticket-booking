@@ -1,7 +1,7 @@
-package org.project.domain.member.dto;
+package org.project.domain.user.dto;
 
 import lombok.Getter;
-import org.project.domain.member.domain.Jwt;
+import org.project.domain.user.domain.Jwt;
 
 @Getter
 public class AuthTokens {

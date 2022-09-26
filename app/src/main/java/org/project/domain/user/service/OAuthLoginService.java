@@ -1,7 +1,7 @@
-package org.project.domain.member.service;
+package org.project.domain.user.service;
 
-import org.project.domain.member.dto.AuthTokens;
-import org.project.domain.member.repository.UserRepository;
+import org.project.domain.user.dto.AuthTokens;
+import org.project.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service

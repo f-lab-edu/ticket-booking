@@ -1,4 +1,4 @@
-package org.project.domain.member.dto;
+package org.project.domain.user.dto;
 
 import lombok.Getter;
 
