@@ -9,7 +9,7 @@ public class OAuthLoginResponse {
   private final String refresh;
 
   public OAuthLoginResponse(AuthTokens authTokens) {
-    this.access = authTokens.getAccess();
-    this.refresh = authTokens.getRefresh();
+    this.access = authTokens.getAccess().toString();
+    this.refresh = authTokens.getRefresh().toString();
   }
 }
