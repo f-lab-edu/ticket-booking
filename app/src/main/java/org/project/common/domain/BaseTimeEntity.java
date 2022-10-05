@@ -13,17 +13,17 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
-  @Column(name = "created_at", nullable = false, updatable = false)
+  @Column(name = "created_datetime", nullable = false, updatable = false)
   @CreatedDate
-  private LocalDateTime createdAt;
+  private LocalDateTime createdDateTime;
 
-  @Column(name = "updated_at")
+  @Column(name = "updated_datetime")
   @LastModifiedDate
-  private LocalDateTime updatedAt;
+  private LocalDateTime updatedDateTime;
 
   protected BaseTimeEntity() {
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = null;
+    this.createdDateTime = LocalDateTime.now();
+    this.updatedDateTime = null;
   }
 
 }
