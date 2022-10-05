@@ -11,7 +11,7 @@ services:
       - "6379:6379"
 
   mysql:
-    image: mysql
+    image: mysql:latest
     container_name: local-mysql
     volumes:
       - test_volume:/var/lib/data
