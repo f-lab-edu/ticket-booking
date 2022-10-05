@@ -20,9 +20,15 @@ spring:
         show_sql: true
         format_sql: true
 
-
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    url: jdbc:mysql://localhost:3306/ticket-booking?characterEncoding=UTF-8
+    user: root
+    password: 1234
 
 logging:
   level:
     org.hibernate.sql: debug
+    org.hibernate.type: trace
 
