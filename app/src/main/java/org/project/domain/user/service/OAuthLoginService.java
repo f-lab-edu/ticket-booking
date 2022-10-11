@@ -1,35 +1,36 @@
 package org.project.domain.user.service;
 
+import org.project.domain.user.domain.Member;
 import org.project.domain.user.dto.AuthTokens;
-import org.project.domain.user.repository.UserRepository;
+import org.project.domain.user.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OAuthLoginService {
 
-  private final UserRepository userRepository;
+  private final MemberRepository memberRepository;
   private final OAuthGrantService oAuthGrantService;
   private final LoginCommonService loginCommonService;
 
-  public OAuthLoginService(UserRepository userRepository, OAuthGrantService oAuthGrantService,
+  public OAuthLoginService(MemberRepository memberRepository, OAuthGrantService oAuthGrantService,
       LoginCommonService loginCommonService) {
-    this.userRepository = userRepository;
+    this.memberRepository = memberRepository;
     this.oAuthGrantService = oAuthGrantService;
     this.loginCommonService = loginCommonService;
   }
 
   public AuthTokens loginWithGoogle(String code) {
-    throw new UnsupportedOperationException("loginWithGoogle() not implemented yet.");
 
-    // TODO: get email from google
-//    String email = oAuthGrantService.getGoogleEmail(code);
+    String email = oAuthGrantService.getGoogleEmail(code);
 
-    // TODO: find or create user
-//    User user = userRepository.findOrCreateByEmailAndProvider(email, "google");
+    Member member = memberRepository.findByEmailAndProvider(email, "google")
+        .orElse(memberRepository.save(Member.builder()
+            .email(email)
+            .provider("google")
+            .build()));
 
-    // TODO: login user
-//    AuthTokens authTokens = loginCommonService.loginUser(user);
+    AuthTokens authTokens = loginCommonService.loginUser(member);
 
-//    return authTokens;
+    return authTokens;
   }
 }

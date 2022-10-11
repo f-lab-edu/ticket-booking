@@ -11,7 +11,7 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 
 @JsonTest
 @MockBean(JpaMetamodelMappingContext.class)
-public class GoogleUserInfoErrorResponseTest {
+public class GoogleMemberInfoErrorResponseTest {
 
   @Autowired
   private JacksonTester<GoogleUserInfoErrorResponse> json;
