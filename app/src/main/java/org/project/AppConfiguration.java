@@ -3,9 +3,10 @@ package org.project;
 import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.context.annotation.Configuration;
 
-@org.springframework.context.annotation.Configuration
-public class Configuration {
+@Configuration
+public class AppConfiguration {
 
   @Bean
   public Clock clock() {
