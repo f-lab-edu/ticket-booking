@@ -6,13 +6,13 @@ import org.project.domain.user.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OAuthLoginService {
+public class AuthService {
 
   private final MemberRepository memberRepository;
   private final OAuthGrantService oAuthGrantService;
   private final LoginCommonService loginCommonService;
 
-  public OAuthLoginService(MemberRepository memberRepository, OAuthGrantService oAuthGrantService,
+  public AuthService(MemberRepository memberRepository, OAuthGrantService oAuthGrantService,
       LoginCommonService loginCommonService) {
     this.memberRepository = memberRepository;
     this.oAuthGrantService = oAuthGrantService;
@@ -30,5 +30,9 @@ public class OAuthLoginService {
             .build()));
 
     return loginCommonService.loginMember(member);
+  }
+
+  public void logout(String refreshToken) {
+    loginCommonService.logoutMember(refreshToken);
   }
 }

@@ -66,7 +66,7 @@ public class LoginCommonService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  void logoutUser(String refreshToken) {
+  void logoutMember(String refreshToken) {
     Boolean result = refreshTokenRepository.delete(refreshToken);
     // TODO: Custom Exception 작성 후 변경
     if (!result) {

@@ -89,7 +89,7 @@ public class LoginCommonServiceTest {
     given(refreshTokenRepository.delete(refreshToken)).willReturn(true);
 
     // when
-    loginCommonService.logoutUser(refreshToken);
+    loginCommonService.logoutMember(refreshToken);
 
     // then
     Mockito.verify(refreshTokenRepository, Mockito.times(1))
@@ -106,7 +106,7 @@ public class LoginCommonServiceTest {
     // TODO: Custom Exception 작성 후 수정
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       // when
-      loginCommonService.logoutUser(refreshToken);
+      loginCommonService.logoutMember(refreshToken);
     });
   }
 
