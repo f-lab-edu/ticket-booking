@@ -35,6 +35,5 @@ public class MemberRepositoryTest {
     assertThat(savedMember.getEmail()).isEqualTo(email);
     assertThat(savedMember.getProvider()).isEqualTo(provider);
     assertThat(savedMember.getCreatedDateTime()).isNotNull();
-    assertThat(savedMember.getUpdatedDateTime()).isNotNull();
   }
 }
