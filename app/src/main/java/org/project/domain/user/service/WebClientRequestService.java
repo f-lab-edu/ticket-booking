@@ -1,12 +1,14 @@
 package org.project.domain.user.service;
 
 import org.project.domain.user.dto.GoogleAccessTokenErrorResponse;
-import org.project.domain.user.dto.GoogleAccessTokenRequest;
 import org.project.domain.user.dto.GoogleAccessTokenResponse;
 import org.project.domain.user.dto.GoogleUserInfoErrorResponse;
 import org.project.domain.user.dto.GoogleUserInfoResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -52,18 +54,19 @@ public class WebClientRequestService {
   }
 
   public GoogleAccessTokenResponse getGoogleOAuthAccessTokenResponse(String code) {
-    GoogleAccessTokenRequest googleAccessTokenRequest = new GoogleAccessTokenRequest();
-    googleAccessTokenRequest.setCode(code);
-    googleAccessTokenRequest.setClientId(googleClientId);
-    googleAccessTokenRequest.setClientSecret(googleClientSecret);
-    googleAccessTokenRequest.setRedirectUri(googleRedirectUri);
-    googleAccessTokenRequest.setGrantType("authorization_code");
+    MultiValueMap<String, String> googleAccessTokenRequest = new LinkedMultiValueMap<>();
+    googleAccessTokenRequest.add("code", code);
+    googleAccessTokenRequest.add("client_id", googleClientId);
+    googleAccessTokenRequest.add("client_secret", googleClientSecret);
+    googleAccessTokenRequest.add("redirect_uri", googleRedirectUri);
+    googleAccessTokenRequest.add("grant_type", "authorization_code");
+
     try {
       return webClient
           .post()
           .uri("https://oauth2.googleapis.com/token")
           .header("Content-Type", "application/x-www-form-urlencoded")
-          .bodyValue(googleAccessTokenRequest)
+          .body(BodyInserters.fromFormData(googleAccessTokenRequest))
           .retrieve()
           // TODO: Custom exception 정의 후 수정
           .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
