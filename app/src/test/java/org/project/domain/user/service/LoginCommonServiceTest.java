@@ -65,7 +65,7 @@ public class LoginCommonServiceTest {
         .build();
 
     // when
-    AuthTokens authTokens = loginCommonService.loginUser(testMember);
+    AuthTokens authTokens = loginCommonService.loginMember(testMember);
 
     // then
     Mockito.verify(jwtService, Mockito.times(1))

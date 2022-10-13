@@ -45,7 +45,7 @@ public class LoginCommonService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  AuthTokens loginUser(Member member) {
+  AuthTokens loginMember(Member member) {
 
     // access, refresh 토큰 발급
     // JwtService에서 Date를 받기 때문에 변환 필요

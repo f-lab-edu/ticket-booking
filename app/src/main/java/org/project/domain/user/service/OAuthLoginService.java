@@ -29,6 +29,6 @@ public class OAuthLoginService {
             .provider("google")
             .build()));
 
-    return loginCommonService.loginUser(member);
+    return loginCommonService.loginMember(member);
   }
 }
