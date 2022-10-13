@@ -23,14 +23,12 @@ public class OAuthLoginService {
 
     String email = oAuthGrantService.getGoogleEmail(code);
 
-    Member member = memberRepository.findByEmailAndProvider(email, "google")
-        .orElse(memberRepository.save(Member.builder()
+    Member member = memberRepository.findByEmailAndProvider(email, "google").orElseGet(
+        () -> memberRepository.save(Member.builder()
             .email(email)
             .provider("google")
             .build()));
 
-    AuthTokens authTokens = loginCommonService.loginUser(member);
-
-    return authTokens;
+    return loginCommonService.loginUser(member);
   }
 }
