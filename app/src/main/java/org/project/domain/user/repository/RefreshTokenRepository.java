@@ -33,7 +33,7 @@ public class RefreshTokenRepository {
     return Optional.of(Long.parseLong(value));
   }
 
-  public void delete(String refreshToken) {
-    redisTemplate.delete(refreshToken);
+  public Boolean delete(String refreshToken) {
+    return redisTemplate.delete(refreshToken);
   }
 }

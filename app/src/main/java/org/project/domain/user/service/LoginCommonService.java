@@ -64,4 +64,13 @@ public class LoginCommonService {
 
     return authTokens;
   }
+
+  @Transactional(rollbackFor = Exception.class)
+  void logoutUser(String refreshToken) {
+    Boolean result = refreshTokenRepository.delete(refreshToken);
+    // TODO: Custom Exception 작성 후 변경
+    if (!result) {
+      throw new IllegalArgumentException("refresh token not found");
+    }
+  }
 }
