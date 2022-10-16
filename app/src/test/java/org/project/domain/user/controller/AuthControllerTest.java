@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.project.domain.user.domain.Jwt;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.dto.OAuthLoginResponse;
 import org.project.domain.user.dto.TokenRefreshRequest;
@@ -41,8 +40,8 @@ public class AuthControllerTest {
   void loginWithGoogle() throws Exception {
     // given
     String code = "testCode";
-    Jwt accessToken = new Jwt(null, null, null);
-    Jwt refreshToken = new Jwt(null, null, null);
+    String accessToken = "testAccessToken";
+    String refreshToken = "testRefreshToken";
     AuthTokens authTokens = new AuthTokens(accessToken, refreshToken);
     OAuthLoginResponse oAuthLoginResponse = new OAuthLoginResponse(authTokens);
     given(authService.loginWithGoogle(code)).willReturn(authTokens);
