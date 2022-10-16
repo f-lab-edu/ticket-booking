@@ -13,25 +13,25 @@ import org.junit.jupiter.api.Test;
 import org.project.domain.user.domain.Jwt;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.dto.OAuthLoginResponse;
-import org.project.domain.user.service.OAuthLoginService;
+import org.project.domain.user.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-@WebMvcTest(controllers = OAuthLoginController.class)
-public class OAuthLoginControllerTest {
+@WebMvcTest(controllers = AuthController.class)
+public class AuthControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
 
   @MockBean
-  private OAuthLoginService oAuthLoginService;
+  private AuthService authService;
 
 
   @Test
-  @DisplayName("쿼리 파라미터로 code만 받는 경우 해당 code로 OAuthLoginService.loginWithGoogle()을 호출한다.")
+  @DisplayName("쿼리 파라미터로 code만 받는 경우 해당 code로 AuthService.loginWithGoogle()을 호출한다.")
   void loginWithGoogle() throws Exception {
     // given
     String code = "testCode";
@@ -39,7 +39,7 @@ public class OAuthLoginControllerTest {
     Jwt refreshToken = new Jwt(null, null, null);
     AuthTokens authTokens = new AuthTokens(accessToken, refreshToken);
     OAuthLoginResponse oAuthLoginResponse = new OAuthLoginResponse(authTokens);
-    given(oAuthLoginService.loginWithGoogle(code)).willReturn(authTokens);
+    given(authService.loginWithGoogle(code)).willReturn(authTokens);
 
     // when
     ResultActions result = mockMvc.perform(
@@ -48,7 +48,7 @@ public class OAuthLoginControllerTest {
     );
 
     // then
-    then(oAuthLoginService).should().loginWithGoogle(code);
+    then(authService).should().loginWithGoogle(code);
     result.andExpect(status().isOk());
     result.andExpect(content().json(convertObjectToJsonString(oAuthLoginResponse)));
   }

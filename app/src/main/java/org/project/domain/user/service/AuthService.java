@@ -5,13 +5,13 @@ import org.project.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OAuthLoginService {
+public class AuthService {
 
   private final UserRepository userRepository;
   private final OAuthGrantService oAuthGrantService;
   private final LoginCommonService loginCommonService;
 
-  public OAuthLoginService(UserRepository userRepository, OAuthGrantService oAuthGrantService,
+  public AuthService(UserRepository userRepository, OAuthGrantService oAuthGrantService,
       LoginCommonService loginCommonService) {
     this.userRepository = userRepository;
     this.oAuthGrantService = oAuthGrantService;
