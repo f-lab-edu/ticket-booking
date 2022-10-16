@@ -23,6 +23,6 @@ public class AuthService {
   }
 
   public String refreshAccessToken(String refreshToken) {
-    throw new UnsupportedOperationException("refreshAccessToken() not implemented yet.");
+    return loginCommonService.refreshAccessToken(refreshToken);
   }
 }
