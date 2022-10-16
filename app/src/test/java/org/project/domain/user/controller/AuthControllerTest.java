@@ -3,6 +3,7 @@ package org.project.domain.user.controller;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -13,14 +14,19 @@ import org.junit.jupiter.api.Test;
 import org.project.domain.user.domain.Jwt;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.dto.OAuthLoginResponse;
+import org.project.domain.user.dto.TokenRefreshRequest;
+import org.project.domain.user.dto.TokenRefreshResponse;
 import org.project.domain.user.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 @WebMvcTest(controllers = AuthController.class)
+@MockBean(JpaMetamodelMappingContext.class)
 public class AuthControllerTest {
 
   @Autowired
@@ -55,6 +61,47 @@ public class AuthControllerTest {
 
   // TODO: 익셉션 핸들러 추가 후 (code: O, error: O), (code: X, error: O), (code: X, error: X) 각 케이스 테스트
 
+  @Test
+  @DisplayName("토큰 리프레시 요청에는 body에 refresh 토큰이 필요하다.")
+  void refreshAccessToken_postBody_test() throws Exception {
+    // given
+    final String url = "/api/v1/oauth/refresh";
+
+    // when
+    final ResultActions result = mockMvc.perform(
+        post(url)
+            .content("{}")
+            .contentType(MediaType.APPLICATION_JSON)
+    );
+
+    // then
+    result.andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("토큰 리프레시 요청 body에 refresh토큰이 있고, 정상적인 경우 200 OK를 반환한다.")
+  void refreshAccessToken_success_case() throws Exception {
+    // given
+    final String url = "/api/v1/oauth/refresh";
+    final String refreshToken = "testRefreshToken";
+    final String accessToken = "testAccessToken";
+    final TokenRefreshRequest tokenRefreshRequest = new TokenRefreshRequest(refreshToken);
+    final TokenRefreshResponse tokenRefreshResponse = new TokenRefreshResponse(accessToken);
+    given(authService.refreshAccessToken(refreshToken)).willReturn(accessToken);
+
+    // when
+    final ResultActions result = mockMvc.perform(
+        post(url)
+            .content(convertObjectToJsonString(tokenRefreshRequest))
+            .contentType(MediaType.APPLICATION_JSON)
+    );
+
+    // then
+    then(authService).should().refreshAccessToken(refreshToken);
+    result.andExpect(status().isOk());
+    result.andExpect(content().json(convertObjectToJsonString(tokenRefreshResponse)));
+  }
+
 
   private String convertObjectToJsonString(Object o) {
     ObjectMapper mapper = new ObjectMapper();
@@ -66,4 +113,5 @@ public class AuthControllerTest {
     }
     return jsonStr;
   }
+
 }

@@ -4,7 +4,7 @@ import org.project.domain.user.domain.User;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class UserRepository {
+public class MemberRepository {
 
 
   public User findOrCreateByEmailAndProvider(String email, String provider) {
