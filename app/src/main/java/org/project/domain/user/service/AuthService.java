@@ -35,4 +35,8 @@ public class AuthService {
   public void logout(String refreshToken) {
     loginCommonService.logoutMember(refreshToken);
   }
+
+  public String refreshAccessToken(String refreshToken) {
+    return loginCommonService.refreshAccessToken(refreshToken);
+  }
 }

@@ -73,4 +73,20 @@ public class LoginCommonService {
       throw new IllegalArgumentException("refresh token not found");
     }
   }
+
+  String refreshAccessToken(String refreshToken) {
+
+    // refresh 토큰 레포지토리에서 확인 (만료되면 레포지토리에 미존재)
+    refreshTokenRepository.find(refreshToken)
+        .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token."));
+
+    // refresh 토큰에서 유저 이메일 가져오기
+    String email = jwtService.getTokenSub(refreshKey, refreshToken);
+
+    // access 토큰 발급
+    Date accessExp = Date.from(LocalDateTime.now(clock)
+        .plusSeconds(accessExpireTimeInSeconds)
+        .atZone(ZoneId.systemDefault()).toInstant());
+    return jwtService.generateToken(accessKey, email, accessExp);
+  }
 }
