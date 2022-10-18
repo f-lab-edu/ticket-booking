@@ -20,6 +20,9 @@ spring:
         show_sql: true
         format_sql: true
 
+  redis:
+    port: 6379
+
   flyway:
     enabled: true
     baseline-on-migrate: true

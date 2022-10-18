@@ -1,5 +1,6 @@
 package org.project.domain.user.service;
 
+import org.project.domain.user.domain.Member;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.repository.MemberRepository;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,20 @@ public class AuthService {
   }
 
   public AuthTokens loginWithGoogle(String code) {
-    throw new UnsupportedOperationException("loginWithGoogle() not implemented yet.");
+
+    String email = oAuthGrantService.getGoogleEmail(code);
+
+    Member member = memberRepository.findByEmailAndProvider(email, "google").orElseGet(
+        () -> memberRepository.save(Member.builder()
+            .email(email)
+            .provider("google")
+            .build()));
+
+    return loginCommonService.loginMember(member);
+  }
+
+  public void logout(String refreshToken) {
+    loginCommonService.logoutMember(refreshToken);
   }
 
   public String refreshAccessToken(String refreshToken) {

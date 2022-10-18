@@ -17,3 +17,5 @@ spring:
     import:
       - "optional:secrets.yml"
 
+  redis:
+    port: 6379

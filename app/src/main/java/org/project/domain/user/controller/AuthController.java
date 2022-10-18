@@ -4,9 +4,10 @@ import javax.validation.Valid;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.dto.OAuthLoginQueryParameter;
 import org.project.domain.user.dto.OAuthLoginResponse;
+import org.project.domain.user.dto.AuthLogoutRequest;
+import org.project.domain.user.service.AuthService;
 import org.project.domain.user.dto.TokenRefreshRequest;
 import org.project.domain.user.dto.TokenRefreshResponse;
-import org.project.domain.user.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,5 +41,11 @@ public class AuthController {
       @Valid @RequestBody TokenRefreshRequest request) {
     String accessToken = authService.refreshAccessToken(request.getRefresh());
     return ResponseEntity.ok(new TokenRefreshResponse(accessToken));
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<Void> logout(@Valid @RequestBody AuthLogoutRequest request) {
+    authService.logout(request.getRefresh());
+    return ResponseEntity.ok().build();
   }
 }

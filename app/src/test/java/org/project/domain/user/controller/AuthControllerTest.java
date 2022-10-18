@@ -11,10 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.project.domain.user.dto.AuthLogoutRequest;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.dto.OAuthLoginResponse;
-import org.project.domain.user.dto.TokenRefreshRequest;
-import org.project.domain.user.dto.TokenRefreshResponse;
 import org.project.domain.user.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,6 +22,8 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.project.domain.user.dto.TokenRefreshRequest;
+import org.project.domain.user.dto.TokenRefreshResponse;
 
 @WebMvcTest(controllers = AuthController.class)
 @MockBean(JpaMetamodelMappingContext.class)
@@ -56,6 +57,28 @@ public class AuthControllerTest {
     then(authService).should().loginWithGoogle(code);
     result.andExpect(status().isOk());
     result.andExpect(content().json(convertObjectToJsonString(oAuthLoginResponse)));
+  }
+
+  // test logout
+  @Test
+  @DisplayName("로그아웃 요청이 들어오면 받은 refresh token으로 AuthService.logout()을 호출한다.")
+  void logout() throws Exception {
+    // given
+    String refreshToken = "testRefreshToken";
+    AuthLogoutRequest authLogoutRequest = new AuthLogoutRequest();
+    authLogoutRequest.setRefresh(refreshToken);
+    String content = convertObjectToJsonString(authLogoutRequest);
+
+    // when
+    ResultActions result = mockMvc.perform(
+        post("/api/v1/oauth/logout")
+            .content(content)
+            .contentType(MediaType.APPLICATION_JSON)
+    );
+
+    // then
+    then(authService).should().logout(refreshToken);
+    result.andExpect(status().isOk());
   }
 
   // TODO: 익셉션 핸들러 추가 후 (code: O, error: O), (code: X, error: O), (code: X, error: X) 각 케이스 테스트

@@ -11,8 +11,8 @@ public class OAuthLoginResponseTest {
   @DisplayName("AuthTokens를 받으면 동일한 access, refresh를 가진 OAuthLoginResponse를 반환한다.")
   void testConstructor() {
     // given
-    String accessToken = "accessToken";
-    String refreshToken = "refreshToken";
+    String accessToken = "testAccessToken";
+    String refreshToken = "testRefreshToken";
     AuthTokens authTokens = new AuthTokens(accessToken, refreshToken);
 
     // when
