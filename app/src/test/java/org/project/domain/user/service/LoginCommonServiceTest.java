@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.project.domain.user.domain.Member;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.repository.RefreshTokenRepository;
+import org.project.exception.InvalidRefreshTokenException;
 import org.project.util.JwtService;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,15 +39,8 @@ public class LoginCommonServiceTest {
   private final LoginCommonService loginCommonService;
 
   LoginCommonServiceTest() {
-    loginCommonService = new LoginCommonService(
-        clock,
-        refreshTokenRepository,
-        jwtService,
-        accessSecret,
-        refreshSecret,
-        accessExpireTimeInSeconds,
-        refreshExpireTimeInSeconds
-    );
+    loginCommonService = new LoginCommonService(clock, refreshTokenRepository, jwtService,
+        accessSecret, refreshSecret, accessExpireTimeInSeconds, refreshExpireTimeInSeconds);
   }
 
 
@@ -59,24 +53,17 @@ public class LoginCommonServiceTest {
     String email = "test@test.com";
     String accessToken = "testAccessToken";
     String refreshToken = "testRefreshToken";
-    given(jwtService.generateToken(eq(accessKey), eq(email), any()))
-        .willReturn(accessToken);
-    given(jwtService.generateToken(eq(refreshKey), eq(email), any()))
-        .willReturn(refreshToken);
-    Member testMember = Member.builder()
-        .email(email)
-        .build();
+    given(jwtService.generateToken(eq(accessKey), eq(email), any())).willReturn(accessToken);
+    given(jwtService.generateToken(eq(refreshKey), eq(email), any())).willReturn(refreshToken);
+    Member testMember = Member.builder().email(email).build();
 
     // when
     AuthTokens authTokens = loginCommonService.loginMember(testMember);
 
     // then
-    Mockito.verify(jwtService, Mockito.times(1))
-        .generateToken(eq(accessKey), eq(email), any());
-    Mockito.verify(jwtService, Mockito.times(1))
-        .generateToken(eq(refreshKey), eq(email), any());
-    Mockito.verify(refreshTokenRepository, Mockito.times(1))
-        .save(refreshToken);
+    Mockito.verify(jwtService, Mockito.times(1)).generateToken(eq(accessKey), eq(email), any());
+    Mockito.verify(jwtService, Mockito.times(1)).generateToken(eq(refreshKey), eq(email), any());
+    Mockito.verify(refreshTokenRepository, Mockito.times(1)).save(refreshToken);
     assertThat(authTokens.getAccess()).isEqualTo(accessToken);
     assertThat(authTokens.getRefresh()).isEqualTo(refreshToken);
   }
@@ -92,8 +79,7 @@ public class LoginCommonServiceTest {
     loginCommonService.logoutMember(refreshToken);
 
     // then
-    Mockito.verify(refreshTokenRepository, Mockito.times(1))
-        .delete(refreshToken);
+    Mockito.verify(refreshTokenRepository, Mockito.times(1)).delete(refreshToken);
   }
 
   @DisplayName("토큰 존재하지 않을 때 로그아웃 시 리프레시 토큰 레포지토리에서 토큰 삭제")
@@ -103,11 +89,8 @@ public class LoginCommonServiceTest {
     String refreshToken = "testRefreshToken";
     given(refreshTokenRepository.delete(refreshToken)).willReturn(false);
 
-    // TODO: Custom Exception 작성 후 수정
-    Assertions.assertThrows(IllegalArgumentException.class, () -> {
-      // when
-      loginCommonService.logoutMember(refreshToken);
-    });
+    Assertions.assertThrows(InvalidRefreshTokenException.class,
+        () -> loginCommonService.logoutMember(refreshToken));
   }
 
 }
