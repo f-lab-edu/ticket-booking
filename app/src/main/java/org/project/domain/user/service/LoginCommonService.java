@@ -9,7 +9,6 @@ import java.util.Date;
 import org.project.domain.user.domain.Member;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.repository.RefreshTokenRepository;
-import org.project.exception.InvalidRefreshTokenException;
 import org.project.util.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -69,8 +68,9 @@ public class LoginCommonService {
   @Transactional(rollbackFor = Exception.class)
   void logoutMember(String refreshToken) {
     Boolean result = refreshTokenRepository.delete(refreshToken);
+    // TODO: Custom Exception 작성 후 변경
     if (!result) {
-      throw new InvalidRefreshTokenException();
+      throw new IllegalArgumentException("refresh token not found");
     }
   }
 
