@@ -14,16 +14,17 @@ import org.junit.jupiter.api.Test;
 import org.project.domain.user.dto.AuthLogoutRequest;
 import org.project.domain.user.dto.AuthTokens;
 import org.project.domain.user.dto.OAuthLoginResponse;
+import org.project.domain.user.dto.TokenRefreshRequest;
+import org.project.domain.user.dto.TokenRefreshResponse;
 import org.project.domain.user.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.project.domain.user.dto.TokenRefreshRequest;
-import org.project.domain.user.dto.TokenRefreshResponse;
 
 @WebMvcTest(controllers = AuthController.class)
 @MockBean(JpaMetamodelMappingContext.class)
@@ -81,8 +82,47 @@ public class AuthControllerTest {
     result.andExpect(status().isOk());
   }
 
-  // TODO: 익셉션 핸들러 추가 후 (code: O, error: O), (code: X, error: O), (code: X, error: X) 각 케이스 테스트
+  @Test
+  @DisplayName("Authorization Code 요청에 대한 리다이렉션이 error를 포함하면 에러 바디로 응답한다.")
+  void loginWithGoogleError() throws Exception {
+    // given
+    String error = "testError";
+    String errorMessage = String.format("Authorization code request failed with error: %s", error);
 
+    // when
+    ResultActions result = mockMvc.perform(
+        get("/api/v1/oauth/google")
+            .param("error", error)
+    );
+
+    // then
+    result.andExpect(status().isBadRequest());
+    result.andExpect(content().json(
+        "{\"error\":\"" + HttpStatus.BAD_REQUEST.getReasonPhrase()
+            + "\",\"status\":" + HttpStatus.BAD_REQUEST.value()
+            + ",\"message\":\"" + errorMessage + "\"}"
+    ));
+  }
+
+  @Test
+  @DisplayName("code, error 모두 없는 경우 400 에러를 응답한다.")
+  void loginWithGoogleNoCodeNoError() throws Exception {
+    // given
+    String errorMessage = "Code or error parameter is required.";
+
+    // when
+    ResultActions result = mockMvc.perform(
+        get("/api/v1/oauth/google")
+    );
+
+    // then
+    result.andExpect(status().isBadRequest());
+    result.andExpect(content().json(
+        String.format("{\"error\":\"%s\",\"status\":%d,\"message\":\"%s\"}",
+            HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST.value(), errorMessage)
+    ));
+
+  }
   @Test
   @DisplayName("토큰 리프레시 요청에는 body에 refresh 토큰이 필요하다.")
   void refreshAccessToken_postBody_test() throws Exception {
