@@ -19,4 +19,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
   }
 
+  @ExceptionHandler(InvalidRefreshTokenException.class)
+  public ResponseEntity<GenericErrorResponse> handleInvalidRefreshTokenException(
+      InvalidRefreshTokenException e) {
+    GenericErrorResponse response = new GenericErrorResponse(
+        String.valueOf(System.currentTimeMillis()), HttpStatus.UNAUTHORIZED.value(),
+        HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()
+    );
+    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+  }
+
 }
