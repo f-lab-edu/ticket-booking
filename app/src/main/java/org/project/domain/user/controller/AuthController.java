@@ -6,6 +6,7 @@ import org.project.domain.user.dto.OAuthLoginQueryParameter;
 import org.project.domain.user.dto.OAuthLoginResponse;
 import org.project.domain.user.dto.AuthLogoutRequest;
 import org.project.domain.user.service.AuthService;
+import org.project.exception.OAuthCodeRequestFailException;
 import org.project.domain.user.dto.TokenRefreshRequest;
 import org.project.domain.user.dto.TokenRefreshResponse;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,11 @@ public class AuthController {
   @GetMapping("/google")
   public ResponseEntity<OAuthLoginResponse> loginWithGoogle(OAuthLoginQueryParameter request) {
     if (request.getError() != null) {
-      // TODO: 어떤 Error 던질 것인지
-      throw new UnsupportedOperationException(
-          "oAuthLoginController.loginWithGoogle() error handling not implemented.");
+      throw new OAuthCodeRequestFailException(
+          "Authorization code request failed with error: " + request.getError());
+    }
+    if (request.getCode() == null) {
+      throw new OAuthCodeRequestFailException("Code or error parameter is required.");
     }
     AuthTokens authTokens = authService.loginWithGoogle(request.getCode());
     return ResponseEntity.ok(new OAuthLoginResponse(authTokens));
