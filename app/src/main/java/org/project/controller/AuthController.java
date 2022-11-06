@@ -1,14 +1,14 @@
 package org.project.controller;
 
 import javax.validation.Valid;
-import org.project.domain.user.dto.AuthTokens;
-import org.project.domain.user.dto.OAuthLoginQueryParameter;
-import org.project.domain.user.dto.OAuthLoginResponse;
-import org.project.domain.user.dto.AuthLogoutRequest;
-import org.project.domain.user.service.AuthService;
+import org.project.dto.AuthTokens;
+import org.project.dto.OAuthLoginQueryParameter;
+import org.project.dto.OAuthLoginResponse;
+import org.project.dto.AuthLogoutRequest;
+import org.project.service.AuthService;
 import org.project.exception.OAuthCodeRequestFailException;
-import org.project.domain.user.dto.TokenRefreshRequest;
-import org.project.domain.user.dto.TokenRefreshResponse;
+import org.project.dto.TokenRefreshRequest;
+import org.project.dto.TokenRefreshResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

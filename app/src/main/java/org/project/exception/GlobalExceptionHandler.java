@@ -1,6 +1,6 @@
 package org.project.exception;
 
-import org.project.common.dto.GenericErrorResponse;
+import org.project.dto.GenericErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
