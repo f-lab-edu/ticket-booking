@@ -1,4 +1,4 @@
-package org.project.domain.user.controller;
+package org.project.controller;
 
 import javax.validation.Valid;
 import org.project.domain.user.dto.AuthTokens;

@@ -1,4 +1,4 @@
-package org.project.domain.user.controller;
+package org.project.controller;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -123,6 +123,7 @@ public class AuthControllerTest {
     ));
 
   }
+
   @Test
   @DisplayName("토큰 리프레시 요청에는 body에 refresh 토큰이 필요하다.")
   void refreshAccessToken_postBody_test() throws Exception {
