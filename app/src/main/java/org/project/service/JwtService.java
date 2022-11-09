@@ -67,4 +67,9 @@ public interface JwtService {
    * @throws IllegalArgumentException
    */
   boolean isTokenSignValid(Key key, String token) throws IllegalArgumentException;
+
+  /**
+   * 주어진 token이 유효한지 확인한다.
+   */
+  boolean isTokenValid(Key key, String token);
 }

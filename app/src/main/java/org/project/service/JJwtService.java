@@ -88,4 +88,19 @@ public class JJwtService implements JwtService {
       throw new IllegalArgumentException("Invalid token");
     }
   }
+
+  @Override
+  public boolean isTokenValid(Key key, String token) {
+    try {
+      Jwts.parserBuilder()
+          .setSigningKey(key)
+          .build()
+          .parseClaimsJws(token);
+      return true;
+    } catch (ExpiredJwtException e) {
+      return true;
+    } catch (JwtException e) {
+      return false;
+    }
+  }
 }

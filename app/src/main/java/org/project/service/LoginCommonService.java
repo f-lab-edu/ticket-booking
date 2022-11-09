@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import org.project.domain.Member;
 import org.project.dto.AuthTokens;
+import org.project.exception.InvalidAccessTokenException;
 import org.project.repository.RefreshTokenRepository;
 import org.project.exception.InvalidRefreshTokenException;
 import org.springframework.beans.factory.annotation.Value;
@@ -87,5 +88,15 @@ public class LoginCommonService {
         .plusSeconds(accessExpireTimeInSeconds)
         .atZone(ZoneId.systemDefault()).toInstant());
     return jwtService.generateToken(accessKey, email, accessExp);
+  }
+
+  public void validateAccessToken(String accessToken) {
+    if (!jwtService.isTokenValid(accessKey, accessToken)) {
+      throw new InvalidAccessTokenException();
+    }
+  }
+
+  public String getSubFromAccessToken(String accessToken) {
+    return jwtService.getTokenSub(accessKey, accessToken);
   }
 }
