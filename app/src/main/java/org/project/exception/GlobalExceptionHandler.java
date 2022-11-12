@@ -2,8 +2,8 @@ package org.project.exception;
 
 import org.project.dto.GenericErrorResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -11,51 +11,51 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(OAuthCodeRequestFailException.class)
-  public ResponseEntity<GenericErrorResponse> handleOAuthCodeRequestFailException(
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public GenericErrorResponse handleOAuthCodeRequestFailException(
       OAuthCodeRequestFailException e) {
-    GenericErrorResponse errorResponse = new GenericErrorResponse(
+    return new GenericErrorResponse(
         String.valueOf(System.currentTimeMillis()), HttpStatus.BAD_REQUEST.value(),
         HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
   }
 
   @ExceptionHandler(InvalidRefreshTokenException.class)
-  public ResponseEntity<GenericErrorResponse> handleInvalidRefreshTokenException(
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public GenericErrorResponse handleInvalidRefreshTokenException(
       InvalidRefreshTokenException e) {
-    GenericErrorResponse response = new GenericErrorResponse(
+    return new GenericErrorResponse(
         String.valueOf(System.currentTimeMillis()), HttpStatus.UNAUTHORIZED.value(),
         HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()
     );
-    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(InvalidAccessTokenException.class)
-  public ResponseEntity<GenericErrorResponse> handleExpiredAccessTokenException(
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public GenericErrorResponse handleExpiredAccessTokenException(
       InvalidAccessTokenException e) {
-    GenericErrorResponse response = new GenericErrorResponse(
+    return new GenericErrorResponse(
         String.valueOf(System.currentTimeMillis()), HttpStatus.UNAUTHORIZED.value(),
         HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()
     );
-    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(TokenRequiredException.class)
-  public ResponseEntity<GenericErrorResponse> handleTokenRequiredException(
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public GenericErrorResponse handleTokenRequiredException(
       TokenRequiredException e) {
-    GenericErrorResponse response = new GenericErrorResponse(
+    return new GenericErrorResponse(
         String.valueOf(System.currentTimeMillis()), HttpStatus.UNAUTHORIZED.value(),
         HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()
     );
-    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(InvalidAuthorizationHeaderException.class)
-  public ResponseEntity<GenericErrorResponse> handleInvalidAuthorizationHeaderException(
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public GenericErrorResponse handleInvalidAuthorizationHeaderException(
       InvalidAuthorizationHeaderException e) {
-    GenericErrorResponse response = new GenericErrorResponse(
+    return new GenericErrorResponse(
         String.valueOf(System.currentTimeMillis()), HttpStatus.UNAUTHORIZED.value(),
         HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()
     );
-    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
   }
 }
