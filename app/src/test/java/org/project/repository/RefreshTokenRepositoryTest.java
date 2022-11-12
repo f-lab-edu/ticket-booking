@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.project.configuration.JwtProperties;
 import org.project.configuration.RedisConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
@@ -24,11 +25,17 @@ public class RefreshTokenRepositoryTest {
   private RedisTemplate<String, Object> redisTemplate;
 
   private RefreshTokenRepository refreshTokenRepository;
-  private final Long refreshExpireTimeInSeconds = 100L;
+  private final JwtProperties jwtProperties
+      = new JwtProperties(
+      "dummy-access-secret",
+      "dummy-refresh-secret",
+      10L,
+      100L
+  );
 
   @BeforeEach
   void setUp() {
-    refreshTokenRepository = new RefreshTokenRepository(redisTemplate, refreshExpireTimeInSeconds);
+    refreshTokenRepository = new RefreshTokenRepository(redisTemplate, jwtProperties);
   }
 
   @AfterEach
@@ -48,11 +55,11 @@ public class RefreshTokenRepositoryTest {
     // then
     // test set()
     Object result = redisTemplate.opsForValue().get(refreshToken);
-    assertThat(result).isEqualTo(String.valueOf(refreshExpireTimeInSeconds));
+    assertThat(result).isEqualTo(String.valueOf(this.jwtProperties.getRefreshExpiration()));
 
     // test expire()
     Long expire = redisTemplate.getExpire(refreshToken);
-    assertThat(expire).isEqualTo(refreshExpireTimeInSeconds);
+    assertThat(expire).isEqualTo(this.jwtProperties.getRefreshExpiration());
   }
 
   @DisplayName("find() 메소드는 refresh token을 키로 하는 값을 찾아 반환한다.")
@@ -66,7 +73,7 @@ public class RefreshTokenRepositoryTest {
     Long result = refreshTokenRepository.find(refreshToken).get();
 
     // then
-    assertThat(result).isEqualTo(refreshExpireTimeInSeconds);
+    assertThat(result).isEqualTo(this.jwtProperties.getRefreshExpiration());
   }
 
   @DisplayName("find() 메소드는 만료된 값은 찾을 수 없다.")

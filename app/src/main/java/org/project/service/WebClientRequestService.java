@@ -1,10 +1,11 @@
 package org.project.service;
 
+import org.project.configuration.OAuth2Properties;
+import org.project.configuration.OAuth2Properties.Google;
 import org.project.dto.GoogleAccessTokenErrorResponse;
 import org.project.dto.GoogleAccessTokenResponse;
 import org.project.dto.GoogleUserInfoErrorResponse;
 import org.project.dto.GoogleUserInfoResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,20 +18,15 @@ import reactor.core.publisher.Mono;
 public class WebClientRequestService {
 
   private final WebClient webClient;
-  private final String googleClientId;
-  private final String googleClientSecret;
-  private final String googleRedirectUri;
+  private final OAuth2Properties oAuth2Properties;
 
   public WebClientRequestService(
       WebClient webClient,
-      @Value("${oauth2.google.client-id}") String googleClientId,
-      @Value("${oauth2.google.client-secret}") String googleClientSecret,
-      @Value("${oauth2.google.redirect-uri}") String googleRedirectUri
+      OAuth2Properties oAuth2Properties
   ) {
     this.webClient = webClient;
-    this.googleClientId = googleClientId;
-    this.googleClientSecret = googleClientSecret;
-    this.googleRedirectUri = googleRedirectUri;
+    this.oAuth2Properties = oAuth2Properties;
+
   }
 
   public GoogleUserInfoResponse getGoogleUserInfoResponse(
@@ -54,11 +50,13 @@ public class WebClientRequestService {
   }
 
   public GoogleAccessTokenResponse getGoogleOAuthAccessTokenResponse(String code) {
+    Google googleProperties = this.oAuth2Properties.getGoogle();
+
     MultiValueMap<String, String> googleAccessTokenRequest = new LinkedMultiValueMap<>();
     googleAccessTokenRequest.add("code", code);
-    googleAccessTokenRequest.add("client_id", googleClientId);
-    googleAccessTokenRequest.add("client_secret", googleClientSecret);
-    googleAccessTokenRequest.add("redirect_uri", googleRedirectUri);
+    googleAccessTokenRequest.add("client_id", googleProperties.getClientId());
+    googleAccessTokenRequest.add("client_secret", googleProperties.getClientSecret());
+    googleAccessTokenRequest.add("redirect_uri", googleProperties.getRedirectUri());
     googleAccessTokenRequest.add("grant_type", "authorization_code");
 
     try {

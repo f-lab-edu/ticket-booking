@@ -6,12 +6,12 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import org.project.configuration.JwtProperties;
 import org.project.domain.Member;
 import org.project.dto.AuthTokens;
 import org.project.exception.InvalidAccessTokenException;
 import org.project.repository.RefreshTokenRepository;
 import org.project.exception.InvalidRefreshTokenException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,18 +30,16 @@ public class LoginCommonService {
       Clock clock,
       RefreshTokenRepository refreshTokenRepository,
       JwtService jwtService,
-      @Value("${jwt.access-secret}") String accessSecret,
-      @Value("${jwt.refresh-secret}") String refreshSecret,
-      @Value("${jwt.access-expiration}") Long accessExpireTimeInSeconds,
-      @Value("${jwt.refresh-expiration}") Long refreshExpireTimeInSeconds) {
+      JwtProperties jwtProperties
+  ) {
     this.clock = clock;
     this.refreshTokenRepository = refreshTokenRepository;
     this.jwtService = jwtService;
-    this.accessExpireTimeInSeconds = accessExpireTimeInSeconds;
-    this.refreshExpireTimeInSeconds = refreshExpireTimeInSeconds;
-    byte[] accessSecretBytes = accessSecret.getBytes();
+    this.accessExpireTimeInSeconds = jwtProperties.getAccessExpiration();
+    this.refreshExpireTimeInSeconds = jwtProperties.getRefreshExpiration();
+    byte[] accessSecretBytes = jwtProperties.getAccessSecret().getBytes();
     this.accessKey = Keys.hmacShaKeyFor(accessSecretBytes);
-    byte[] refreshSecretBytes = refreshSecret.getBytes();
+    byte[] refreshSecretBytes = jwtProperties.getRefreshSecret().getBytes();
     this.refreshKey = Keys.hmacShaKeyFor(refreshSecretBytes);
   }
 
