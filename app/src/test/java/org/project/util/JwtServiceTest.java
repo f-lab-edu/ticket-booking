@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.util.Date;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.project.service.JJwtService;
 import org.project.service.JwtService;
 
 /**
@@ -25,7 +24,7 @@ import org.project.service.JwtService;
  * <p>
  * boolean isTokenSignValid(Key key, String token);
  */
-public class JJwtServiceTest {
+public class JwtServiceTest {
 
 
   private static final String ACCESS_TOKEN_SECRET = "access_token_secret must be at least 256 bits for HS256 algorithm";
@@ -36,7 +35,7 @@ public class JJwtServiceTest {
   private static final Key refreshKey = Keys.hmacShaKeyFor(REFRESH_TOKEN_SECRET.getBytes());
 
   private static final Date fakeFixedDate = Date.from(Instant.parse("2021-01-01T00:00:00.00Z"));
-  private JwtService jwtService = new JJwtService();
+  private final JwtService jwtService = new JwtService();
 
 
   @Test
