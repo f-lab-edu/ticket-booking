@@ -1,6 +1,6 @@
 package org.project.controller;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.project.configuration.OAuth2Properties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,24 +8,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class FrontController {
 
-  private final String googleClientId;
-  private final String googleRedirectUri;
+  private final OAuth2Properties oAuth2Properties;
 
   FrontController(
-      @Value("${oauth2.google.client-id}")
-      String googleClientId,
-      @Value("${oauth2.google.redirect-uri}")
-      String googleRedirectUri
+      OAuth2Properties oAuth2Properties
   ) {
-    this.googleClientId = googleClientId;
-    this.googleRedirectUri = googleRedirectUri;
+    this.oAuth2Properties = oAuth2Properties;
   }
 
   // inject googleClientId and googleRedirectUri into template.
   @GetMapping("/")
   public String index(Model model) {
-    model.addAttribute("googleClientId", googleClientId);
-    model.addAttribute("googleRedirectUri", googleRedirectUri);
+    model.addAttribute("googleClientId", this.oAuth2Properties.getGoogle().getClientId());
+    model.addAttribute("googleRedirectUri", this.oAuth2Properties.getGoogle().getRedirectUri());
     return "login";
   }
 }

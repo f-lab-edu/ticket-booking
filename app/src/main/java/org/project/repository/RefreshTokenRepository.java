@@ -2,7 +2,7 @@ package org.project.repository;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import org.springframework.beans.factory.annotation.Value;
+import org.project.configuration.JwtProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -10,16 +10,18 @@ import org.springframework.stereotype.Repository;
 public class RefreshTokenRepository {
 
   private final RedisTemplate<String, Object> redisTemplate;
-  private final Long refreshExpireTimeInSeconds;
+  private final JwtProperties jwtProperties;
 
   public RefreshTokenRepository(
       RedisTemplate<String, Object> redisTemplate,
-      @Value("${jwt.refresh-expiration}") Long refreshExpireTimeInSeconds) {
+      JwtProperties jwtProperties
+  ) {
     this.redisTemplate = redisTemplate;
-    this.refreshExpireTimeInSeconds = refreshExpireTimeInSeconds;
+    this.jwtProperties = jwtProperties;
   }
 
   public void save(String refreshToken) {
+    Long refreshExpireTimeInSeconds = this.jwtProperties.getRefreshExpiration();
     redisTemplate.opsForValue()
         .set(refreshToken, String.valueOf(refreshExpireTimeInSeconds));
     redisTemplate.expire(refreshToken, refreshExpireTimeInSeconds, TimeUnit.SECONDS);

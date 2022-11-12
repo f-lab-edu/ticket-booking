@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.project.configuration.JwtProperties;
 import org.project.domain.Member;
 import org.project.dto.AuthTokens;
 import org.project.repository.RefreshTokenRepository;
@@ -36,12 +37,19 @@ public class LoginCommonServiceTest {
   private final String refreshSecret = "refresh-secretrefresh-secretrefresh-secretrefresh-secretrefresh-secret";
   private final Long accessExpireTimeInSeconds = 3600L;
   private final Long refreshExpireTimeInSeconds = 86400L;
+  private final JwtProperties jwtProperties = new JwtProperties(
+      accessSecret,
+      refreshSecret,
+      accessExpireTimeInSeconds,
+      refreshExpireTimeInSeconds
+  );
 
   private final LoginCommonService loginCommonService;
 
   LoginCommonServiceTest() {
-    loginCommonService = new LoginCommonService(clock, refreshTokenRepository, jwtService,
-        accessSecret, refreshSecret, accessExpireTimeInSeconds, refreshExpireTimeInSeconds);
+    loginCommonService =
+        new LoginCommonService(
+            clock, refreshTokenRepository, jwtService, jwtProperties);
   }
 
 
