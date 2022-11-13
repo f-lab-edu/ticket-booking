@@ -64,7 +64,7 @@ public class LoginCommonServiceTest {
     String refreshToken = "testRefreshToken";
     given(jwtService.generateToken(eq(accessKey), eq(email), any())).willReturn(accessToken);
     given(jwtService.generateToken(eq(refreshKey), eq(email), any())).willReturn(refreshToken);
-    Member testMember = Member.builder().email(email).build();
+    Member testMember = new Member(email, "google");
 
     // when
     AuthTokens authTokens = loginCommonService.loginMember(testMember);

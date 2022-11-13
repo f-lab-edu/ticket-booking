@@ -1,11 +1,13 @@
 package org.project.domain;
 
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,6 +28,9 @@ public class Concert extends BaseTimeEntity {
 
   @Column(length = 120)
   private String description;
+
+  @OneToMany(mappedBy = "concert")
+  private List<Ticket> tickets;
 
   public Concert(String title, String description) {
     this.title = title;

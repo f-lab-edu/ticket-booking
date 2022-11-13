@@ -24,10 +24,7 @@ public class AuthService {
     String email = oAuthGrantService.getGoogleEmail(code);
 
     Member member = memberRepository.findByEmailAndProvider(email, "google").orElseGet(
-        () -> memberRepository.save(Member.builder()
-            .email(email)
-            .provider("google")
-            .build()));
+        () -> memberRepository.save(new Member(email, "google")));
 
     return loginCommonService.loginMember(member);
   }
