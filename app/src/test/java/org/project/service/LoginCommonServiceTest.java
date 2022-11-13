@@ -2,6 +2,7 @@ package org.project.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -13,7 +14,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -98,7 +98,7 @@ public class LoginCommonServiceTest {
     String refreshToken = "testRefreshToken";
     given(refreshTokenRepository.delete(refreshToken)).willReturn(false);
 
-    Assertions.assertThrows(InvalidRefreshTokenException.class,
+    assertThrows(InvalidRefreshTokenException.class,
         () -> loginCommonService.logoutMember(refreshToken));
   }
 
@@ -110,7 +110,7 @@ public class LoginCommonServiceTest {
     given(refreshTokenRepository.find(refreshToken)).willReturn(Optional.empty());
 
     // when
-    Assertions.assertThrows(IllegalArgumentException.class,
+    assertThrows(IllegalArgumentException.class,
         () -> loginCommonService.refreshAccessToken(refreshToken));
   }
 
