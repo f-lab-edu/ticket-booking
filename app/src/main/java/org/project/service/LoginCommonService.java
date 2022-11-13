@@ -13,7 +13,6 @@ import org.project.exception.InvalidAccessTokenException;
 import org.project.repository.RefreshTokenRepository;
 import org.project.exception.InvalidRefreshTokenException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LoginCommonService {
@@ -43,7 +42,6 @@ public class LoginCommonService {
     this.refreshKey = Keys.hmacShaKeyFor(refreshSecretBytes);
   }
 
-  @Transactional(rollbackFor = Exception.class)
   AuthTokens loginMember(Member member) {
 
     // access, refresh 토큰 발급
@@ -64,7 +62,6 @@ public class LoginCommonService {
     return authTokens;
   }
 
-  @Transactional(rollbackFor = Exception.class)
   void logoutMember(String refreshToken) {
     Boolean result = refreshTokenRepository.delete(refreshToken);
     if (!result) {

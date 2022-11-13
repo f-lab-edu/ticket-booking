@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.project.configuration.JwtProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class RefreshTokenRepository {
@@ -20,6 +21,7 @@ public class RefreshTokenRepository {
     this.jwtProperties = jwtProperties;
   }
 
+  @Transactional
   public void save(String refreshToken) {
     Long refreshExpireTimeInSeconds = this.jwtProperties.getRefreshExpiration();
     redisTemplate.opsForValue()
