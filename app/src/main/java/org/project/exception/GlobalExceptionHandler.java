@@ -63,12 +63,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     );
   }
 
-  @ExceptionHandler(MemberNotFoundException.class)
-  @ResponseStatus(HttpStatus.UNAUTHORIZED)
-  public GenericErrorResponse handleMemberNotFoundException(MemberNotFoundException e) {
+  @ExceptionHandler(NotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public GenericErrorResponse handleNotFoundException(NotFoundException e) {
     return new GenericErrorResponse(
-        String.valueOf(System.currentTimeMillis()), HttpStatus.UNAUTHORIZED.value(),
-        HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()
+        String.valueOf(System.currentTimeMillis()), HttpStatus.NOT_FOUND.value(),
+        HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()
     );
   }
 
