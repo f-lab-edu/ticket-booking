@@ -7,8 +7,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.project.domain.Member;
+import org.project.exception.InvalidAccessTokenException;
 import org.project.exception.InvalidAuthorizationHeaderException;
-import org.project.exception.MemberNotFoundException;
 import org.project.exception.TokenRequiredException;
 import org.project.repository.MemberRepository;
 import org.project.service.LoginCommonService;
@@ -52,7 +52,7 @@ public class AccessTokenRequiredAspect {
 
     // 이메일로 회원을 조회해서 파라미터로 넘어온 Member 객체에 넣어준다.
     Member findMember = memberRepository.findByEmail(email)
-        .orElseThrow(() -> new MemberNotFoundException(email));
+        .orElseThrow(InvalidAccessTokenException::new);
 
     // Replace Member argument with Member from email.
     String[] parameterNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
