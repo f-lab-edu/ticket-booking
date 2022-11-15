@@ -63,6 +63,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     );
   }
 
+  @ExceptionHandler(MemberNotFoundException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public GenericErrorResponse handleMemberNotFoundException(MemberNotFoundException e) {
+    return new GenericErrorResponse(
+        String.valueOf(System.currentTimeMillis()), HttpStatus.UNAUTHORIZED.value(),
+        HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()
+    );
+  }
+
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
       HttpHeaders headers, HttpStatus status, WebRequest request) {
