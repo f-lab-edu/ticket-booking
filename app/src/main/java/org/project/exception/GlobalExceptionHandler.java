@@ -1,10 +1,14 @@
 package org.project.exception;
 
 import org.project.dto.GenericErrorResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
@@ -56,6 +60,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return new GenericErrorResponse(
         String.valueOf(System.currentTimeMillis()), HttpStatus.UNAUTHORIZED.value(),
         HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()
+    );
+  }
+
+  @Override
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+      HttpHeaders headers, HttpStatus status, WebRequest request) {
+    GenericErrorResponse errorResponse = new GenericErrorResponse(
+        String.valueOf(System.currentTimeMillis()), HttpStatus.BAD_REQUEST.value(),
+        HttpStatus.BAD_REQUEST.getReasonPhrase(), ex.getMessage()
+    );
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public GenericErrorResponse handleException(Exception e) {
+    return new GenericErrorResponse(
+        String.valueOf(System.currentTimeMillis()), HttpStatus.INTERNAL_SERVER_ERROR.value(),
+        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()
     );
   }
 }
