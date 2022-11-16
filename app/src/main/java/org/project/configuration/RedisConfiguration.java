@@ -20,8 +20,8 @@ public class RedisConfiguration {
     return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
   }
 
-  @Bean
-  public RedisTemplate<String, Object> redisTemplate() {
+  @Bean(name = "refreshTokenRedisTemplate")
+  public RedisTemplate<String, Object> refreshTokenRedisTemplate() {
     RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
     redisTemplate.setEnableTransactionSupport(true);
     redisTemplate.setConnectionFactory(redisConnectionFactory());
@@ -30,4 +30,12 @@ public class RedisConfiguration {
     return redisTemplate;
   }
 
+  @Bean(name = "preoccupyRedisTemplate")
+  public RedisTemplate<String, Long> preoccupyRedisTemplate() {
+    RedisTemplate<String, Long> redisTemplate = new RedisTemplate<>();
+    redisTemplate.setEnableTransactionSupport(true);
+    redisTemplate.setConnectionFactory(redisConnectionFactory());
+    redisTemplate.setKeySerializer(new StringRedisSerializer());
+    return redisTemplate;
+  }
 }

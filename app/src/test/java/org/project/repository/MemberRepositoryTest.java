@@ -22,10 +22,7 @@ public class MemberRepositoryTest {
   public void save() {
     String email = "test@test.com";
     String provider = "google";
-    Member member = Member.builder()
-        .email(email)
-        .provider(provider)
-        .build();
+    Member member = new Member(email, provider);
 
     memberRepository.save(member);
 

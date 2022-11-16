@@ -35,3 +35,5 @@ logging:
     org.hibernate.sql: debug
     org.hibernate.type: trace
 
+order:
+  preoccupy-expire-time: 10
