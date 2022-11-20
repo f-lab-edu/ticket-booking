@@ -53,41 +53,27 @@ public class RefreshTokenRepositoryTest {
     refreshTokenRepository.save(refreshToken);
 
     // then
-    // test set()
-    Object result = redisTemplate.opsForValue().get(refreshToken);
-    assertThat(result).isEqualTo(String.valueOf(this.jwtProperties.getRefreshExpiration()));
-
-    // test expire()
-    Long expire = redisTemplate.getExpire(refreshToken);
-    assertThat(expire).isEqualTo(this.jwtProperties.getRefreshExpiration());
+    // check existence
+    assertThat(redisTemplate.hasKey(refreshToken)).isTrue();
+    // test expire() approximately
+    assertThat(redisTemplate.getExpire(refreshToken, TimeUnit.SECONDS))
+        .isBetween(90L, 100L);
   }
 
-  @DisplayName("find() 메소드는 refresh token을 키로 하는 값을 찾아 반환한다.")
+  @DisplayName("exists() 메소드는 repository에 존재하는 key에 대해서만 true를 반환.")
   @Test
-  public void test_find() {
+  public void testThatExistsMethodReturnsTrueForKeyWhichExists() {
     // given
     String refreshToken = "testRefreshToken";
     refreshTokenRepository.save(refreshToken);
 
     // when
-    Long result = refreshTokenRepository.find(refreshToken).get();
+    Boolean mustBeTrueResult = refreshTokenRepository.exists(refreshToken);
+    Boolean mustBeFalseResult = refreshTokenRepository.exists("nonexistentKey");
 
     // then
-    assertThat(result).isEqualTo(this.jwtProperties.getRefreshExpiration());
-  }
-
-  @DisplayName("find() 메소드는 만료된 값은 찾을 수 없다.")
-  @Test
-  public void test_find_expired() {
-    // given
-    String refreshToken = "testRefreshToken";
-    refreshTokenRepository.save(refreshToken);
-
-    // when
-    redisTemplate.expire(refreshToken, 0, TimeUnit.SECONDS);
-
-    // then
-    assertThat(refreshTokenRepository.find(refreshToken)).isEmpty();
+    assertThat(mustBeTrueResult).isTrue();
+    assertThat(mustBeFalseResult).isFalse();
   }
 
   @DisplayName("delete() 메소드는 refresh token을 키로 하는 값을 삭제한다.")
@@ -101,6 +87,6 @@ public class RefreshTokenRepositoryTest {
     refreshTokenRepository.delete(refreshToken);
 
     // then
-    assertThat(refreshTokenRepository.find(refreshToken)).isEmpty();
+    assertThat(redisTemplate.hasKey(refreshToken)).isFalse();
   }
 }
