@@ -23,7 +23,6 @@ public class RedisConfiguration {
   @Bean(name = "refreshTokenRedisTemplate")
   public RedisTemplate<String, Object> refreshTokenRedisTemplate() {
     RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-    redisTemplate.setEnableTransactionSupport(true);
     redisTemplate.setConnectionFactory(redisConnectionFactory());
     redisTemplate.setKeySerializer(new StringRedisSerializer());
     redisTemplate.setValueSerializer(new StringRedisSerializer());
@@ -33,7 +32,6 @@ public class RedisConfiguration {
   @Bean(name = "preoccupyRedisTemplate")
   public RedisTemplate<String, Long> preoccupyRedisTemplate() {
     RedisTemplate<String, Long> redisTemplate = new RedisTemplate<>();
-    redisTemplate.setEnableTransactionSupport(true);
     redisTemplate.setConnectionFactory(redisConnectionFactory());
     redisTemplate.setKeySerializer(new StringRedisSerializer());
     return redisTemplate;
