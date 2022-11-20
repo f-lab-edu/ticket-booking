@@ -13,7 +13,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,10 +106,10 @@ public class LoginCommonServiceTest {
   void refreshAccessToken_noTokenInRepository() {
     // given
     String refreshToken = "refresh-token";
-    given(refreshTokenRepository.find(refreshToken)).willReturn(Optional.empty());
+    given(refreshTokenRepository.exists(refreshToken)).willReturn(false);
 
     // when
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(InvalidRefreshTokenException.class,
         () -> loginCommonService.refreshAccessToken(refreshToken));
   }
 
@@ -119,7 +118,7 @@ public class LoginCommonServiceTest {
   void refreshAccessToken_tokenInRepository() {
     // given
     String refreshToken = "refresh-token";
-    given(refreshTokenRepository.find(refreshToken)).willReturn(Optional.of(1L));
+    given(refreshTokenRepository.exists(refreshToken)).willReturn(true);
     String testEmail = "test@test.com";
     given(jwtService.getTokenSub(any(Key.class), eq(refreshToken))).willReturn(testEmail);
     String accessToken = "access-token";

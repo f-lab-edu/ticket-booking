@@ -1,11 +1,9 @@
 package org.project.repository;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.project.configuration.JwtProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class RefreshTokenRepository {
@@ -21,20 +19,14 @@ public class RefreshTokenRepository {
     this.jwtProperties = jwtProperties;
   }
 
-  @Transactional
   public void save(String refreshToken) {
     Long refreshExpireTimeInSeconds = this.jwtProperties.getRefreshExpiration();
     redisTemplate.opsForValue()
-        .set(refreshToken, String.valueOf(refreshExpireTimeInSeconds));
-    redisTemplate.expire(refreshToken, refreshExpireTimeInSeconds, TimeUnit.SECONDS);
+        .set(refreshToken, "", refreshExpireTimeInSeconds, TimeUnit.SECONDS); // value 불필요
   }
 
-  public Optional<Long> find(String refreshToken) {
-    String value = (String) redisTemplate.opsForValue().get(refreshToken);
-    if (value == null) {
-      return Optional.empty();
-    }
-    return Optional.of(Long.parseLong(value));
+  public Boolean exists(String refreshToken) {
+    return redisTemplate.hasKey(refreshToken);
   }
 
   public Boolean delete(String refreshToken) {
