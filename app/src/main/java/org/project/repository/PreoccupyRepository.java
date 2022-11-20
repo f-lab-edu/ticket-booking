@@ -6,7 +6,6 @@ import org.project.domain.Member;
 import org.project.domain.Ticket;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class PreoccupyRepository {
@@ -17,10 +16,9 @@ public class PreoccupyRepository {
     this.redisTemplate = redisTemplate;
   }
 
-  @Transactional
   public void save(Ticket ticket, Member member, Long preoccupyTime) {
-    redisTemplate.opsForValue().set(ticket.getId().toString(), member.getId());
-    redisTemplate.expire(ticket.getId().toString(), preoccupyTime, TimeUnit.SECONDS);
+    redisTemplate.opsForValue()
+        .set(ticket.getId().toString(), member.getId(), preoccupyTime, TimeUnit.SECONDS);
   }
 
   public Optional<Long> findMemberId(Ticket ticket) {
