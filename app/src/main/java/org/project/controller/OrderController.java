@@ -6,6 +6,7 @@ import org.project.domain.Member;
 import org.project.domain.TicketOrder;
 import org.project.dto.OrderRequest;
 import org.project.dto.OrderResponse;
+import org.project.dto.PreoccupyRequest;
 import org.project.dto.PreoccupyResponse;
 import org.project.dto.PreoccupyResult;
 import org.project.service.OrderService;
@@ -38,7 +39,7 @@ public class OrderController {
   @PostMapping("/preoccupy")
   @AccessTokenRequired
   @ResponseStatus(HttpStatus.OK)
-  public PreoccupyResponse preoccupy(Member member, @Valid @RequestBody OrderRequest request) {
+  public PreoccupyResponse preoccupy(Member member, @Valid @RequestBody PreoccupyRequest request) {
 
     PreoccupyResult preoccupyResult = orderService.preoccupy(request.getConcertId(), member);
     return new PreoccupyResponse(preoccupyResult.getTicketId(), preoccupyResult.getValidUntil());
