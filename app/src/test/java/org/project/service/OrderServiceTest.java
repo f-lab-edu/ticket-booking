@@ -6,19 +6,16 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.invocation.Invocation;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.project.configuration.OrderProperties;
 import org.project.domain.Member;
@@ -45,9 +42,7 @@ public class OrderServiceTest {
   public void givenNonReservedTicketsMethodWillReturnSuccess() {
     // given
     // Mocking member entity
-    Long memberId = 1L;
     Member mockMember = mock(Member.class);
-    given(mockMember.getId()).willReturn(memberId);
     // Mocking three ticket entities
     List<Long> ticketIds = List.of(1L, 2L, 3L);
     List<Ticket> tickets = List.of(mock(Ticket.class), mock(Ticket.class), mock(Ticket.class));
@@ -59,12 +54,11 @@ public class OrderServiceTest {
         .willReturn(tickets);
     LocalDateTime validUntil = LocalDateTime.now(clock)
         .plusSeconds(orderProperties.getPreoccupyExpireTime());
-    given(ticketRepository.lockTickets(eq(mockMember.getId()), eq(ticketIds), eq(validUntil)))
+    given(ticketRepository.lockTickets(eq(mockMember), eq(ticketIds), eq(validUntil)))
         .willReturn(tickets.size());
 
     // when
     PreoccupyResult preoccupyResult = orderService.preoccupy(mockMember, ticketIds);
-    Collection<Invocation> invocations = mockingDetails(ticketRepository).getInvocations();
 
     // then
     assertThat(preoccupyResult.getTicketIds()).isEqualTo(ticketIds);
@@ -72,7 +66,7 @@ public class OrderServiceTest {
     then(ticketRepository).should()
         .findAllByIdAndLockedUntilAfterWithLock(eq(ticketIds), eq(LocalDateTime.now(clock)));
     then(ticketRepository).should()
-        .lockTickets(eq(mockMember.getId()), eq(ticketIds), eq(validUntil));
+        .lockTickets(eq(mockMember), eq(ticketIds), eq(validUntil));
 
   }
 
@@ -81,7 +75,6 @@ public class OrderServiceTest {
   public void testWhenSomeTicketsAreAlreadyReserved() {
     // given
     // Mocking member entity
-    Long memberId = 1L;
     Member mockMember = mock(Member.class);
     // Mocking three ticket entities
     List<Long> ticketIds = List.of(1L, 2L, 3L);
@@ -111,9 +104,7 @@ public class OrderServiceTest {
   public void testWhenSomeTicketReservationFailed() {
     // given
     // Mocking member entity
-    Long memberId = 1L;
     Member mockMember = mock(Member.class);
-    given(mockMember.getId()).willReturn(memberId);
     // Mocking three ticket entities
     List<Long> ticketIds = List.of(1L, 2L, 3L);
     List<Ticket> tickets = List.of(mock(Ticket.class), mock(Ticket.class), mock(Ticket.class));
@@ -125,7 +116,7 @@ public class OrderServiceTest {
         .willReturn(tickets);
     LocalDateTime validUntil = LocalDateTime.now(clock)
         .plusSeconds(orderProperties.getPreoccupyExpireTime());
-    given(ticketRepository.lockTickets(eq(mockMember.getId()), eq(ticketIds), eq(validUntil)))
+    given(ticketRepository.lockTickets(eq(mockMember), eq(ticketIds), eq(validUntil)))
         .willReturn(tickets.size() - 1);
 
     // when
@@ -135,7 +126,7 @@ public class OrderServiceTest {
     then(ticketRepository).should()
         .findAllByIdAndLockedUntilAfterWithLock(eq(ticketIds), eq(LocalDateTime.now(clock)));
     then(ticketRepository).should()
-        .lockTickets(eq(mockMember.getId()), eq(ticketIds), eq(validUntil));
+        .lockTickets(eq(mockMember), eq(ticketIds), eq(validUntil));
 
   }
 

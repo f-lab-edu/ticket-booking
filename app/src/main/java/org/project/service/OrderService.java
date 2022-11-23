@@ -56,7 +56,7 @@ public class OrderService {
     LocalDateTime validUntil = LocalDateTime.now(clock)
         .plusSeconds(orderProperties.getPreoccupyExpireTime());
     int lockedTicketCounts = ticketRepository.lockTickets(
-        member.getId(),
+        member,
         tickets.stream().map(Ticket::getId).collect(Collectors.toList()),
         validUntil);
     if (lockedTicketCounts != ticketIds.size()) {
