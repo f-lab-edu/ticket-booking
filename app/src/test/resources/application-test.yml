@@ -1,0 +1,6 @@
+order:
+  preoccupy-expire-time: 10
+
+spring:
+  main:
+    allow-bean-definition-overriding: true

@@ -2,6 +2,7 @@ package org.project.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -10,22 +11,20 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.project.configuration.OrderProperties;
-import org.project.domain.Concert;
 import org.project.domain.Member;
 import org.project.domain.Ticket;
 import org.project.dto.PreoccupyResult;
-import org.project.exception.ConcertNotFoundException;
 import org.project.exception.TicketNotFoundException;
 import org.project.repository.ConcertRepository;
 import org.project.repository.PreoccupyRepository;
+import org.project.repository.TicketRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
@@ -34,66 +33,101 @@ public class OrderServiceTest {
   private final ConcertRepository concertRepository = mock(ConcertRepository.class);
   private final PreoccupyRepository preoccupyRepository = mock(PreoccupyRepository.class);
   private final OrderProperties orderProperties = new OrderProperties(10L);
+  private final TicketRepository ticketRepository = mock(TicketRepository.class);
   private final OrderService orderService = new OrderService(clock, concertRepository,
-      orderProperties, preoccupyRepository);
+      orderProperties, preoccupyRepository, ticketRepository);
 
   @Test
-  @DisplayName("존재하는 concertId와 유효한 member로 선점을 요청한다.")
-  public void test_preoccupy() {
+  @DisplayName("요청받은 티켓 목록이 선점되어 있지 않으면 정상 응답한다.")
+  public void givenNonReservedTicketsMethodWillReturnSuccess() {
     // given
-    Long concertId = 1L;
-    Concert mockConcert = mock(Concert.class);
+    // Mocking member entity
     Member mockMember = mock(Member.class);
-    Ticket mockTicket = mock(Ticket.class);
-    given(concertRepository.findById(concertId)).willReturn(Optional.of(mockConcert));
-    given(mockConcert.getAvailableTickets(1)).willReturn(new ArrayList<>(List.of(mockTicket)));
-    given(preoccupyRepository.isPreoccupied(mockTicket.getId())).willReturn(false);
+    // Mocking three ticket entities
+    List<Long> ticketIds = List.of(1L, 2L, 3L);
+    List<Ticket> tickets = List.of(mock(Ticket.class), mock(Ticket.class), mock(Ticket.class));
+    for (int i = 0; i < ticketIds.size(); i++) {
+      given(tickets.get(i).getId()).willReturn(ticketIds.get(i));
+    }
+    given(ticketRepository.findAllByIdAndLockedUntilAfterWithLock(eq(ticketIds),
+        eq(LocalDateTime.now(clock))))
+        .willReturn(tickets);
     LocalDateTime validUntil = LocalDateTime.now(clock)
         .plusSeconds(orderProperties.getPreoccupyExpireTime());
+    given(ticketRepository.lockTickets(eq(mockMember), eq(ticketIds), eq(validUntil)))
+        .willReturn(tickets.size());
 
     // when
-    PreoccupyResult preoccupyResult = orderService.preoccupy(concertId, mockMember);
+    PreoccupyResult preoccupyResult = orderService.preoccupy(mockMember, ticketIds);
 
     // then
-    assertThat(preoccupyResult.getTicketId()).isEqualTo(mockTicket.getId());
+    assertThat(preoccupyResult.getTicketIds()).isEqualTo(ticketIds);
     assertThat(preoccupyResult.getValidUntil()).isEqualTo(validUntil);
-    then(concertRepository).should().findById(concertId);
-    then(mockConcert).should().getAvailableTickets(1);
-    then(preoccupyRepository).should()
-        .save(mockTicket, mockMember, orderProperties.getPreoccupyExpireTime());
+    then(ticketRepository).should()
+        .findAllByIdAndLockedUntilAfterWithLock(eq(ticketIds), eq(LocalDateTime.now(clock)));
+    then(ticketRepository).should()
+        .lockTickets(eq(mockMember), eq(ticketIds), eq(validUntil));
+
   }
 
   @Test
-  @DisplayName("존재하지 않는 concertId로 선점을 요청하면 ConcertNotFoundException을 던진다.")
-  public void test_preoccupy_with_not_found_concert() {
+  @DisplayName("요청받은 티켓 목록 중 하나라도 선점되어 있거나 존재하지 않으면 TicketNofFoundException을 던진다.")
+  public void testWhenSomeTicketsAreAlreadyReserved() {
     // given
-    Long concertId = 1L;
-    given(concertRepository.findById(concertId)).willReturn(Optional.empty());
+    // Mocking member entity
+    Member mockMember = mock(Member.class);
+    // Mocking three ticket entities
+    List<Long> ticketIds = List.of(1L, 2L, 3L);
+    List<Ticket> tickets = List.of(mock(Ticket.class), mock(Ticket.class), mock(Ticket.class));
+    for (int i = 0; i < ticketIds.size(); i++) {
+      given(tickets.get(i).getId()).willReturn(ticketIds.get(i));
+    }
+
+    List<Ticket> ticketsWithMissing = tickets.stream().filter(t -> t.getId() != 3L)
+        .collect(Collectors.toList());
+    given(ticketRepository.findAllByIdAndLockedUntilAfterWithLock(eq(ticketIds),
+        eq(LocalDateTime.now(clock))))
+        .willReturn(ticketsWithMissing);
 
     // when
     // then
-    assertThatThrownBy(() -> orderService.preoccupy(concertId, mock(Member.class)))
-        .isInstanceOf(ConcertNotFoundException.class);
-    then(concertRepository).should().findById(concertId);
-    then(preoccupyRepository).shouldHaveNoInteractions();
-  }
-
-  @Test
-  @DisplayName("concert는 존재하지만 티켓이 없는 경우 TicketNotFoundException을 던진다.")
-  public void test_no_available_ticket_case() {
-    // given
-    Long concertId = 1L;
-    Concert mockConcert = mock(Concert.class);
-    given(concertRepository.findById(concertId)).willReturn(Optional.of(mockConcert));
-    TicketNotFoundException ticketNotFoundException = new TicketNotFoundException(concertId);
-    given(mockConcert.getAvailableTickets(1)).willThrow(ticketNotFoundException);
-
-    // when
-    // then
-    assertThatThrownBy(() -> orderService.preoccupy(concertId, mock(Member.class)))
+    assertThatThrownBy(() -> orderService.preoccupy(mockMember, ticketIds))
         .isInstanceOf(TicketNotFoundException.class);
-    then(concertRepository).should().findById(concertId);
-    then(mockConcert).should().getAvailableTickets(1);
-    then(preoccupyRepository).shouldHaveNoInteractions();
+    then(ticketRepository).should()
+        .findAllByIdAndLockedUntilAfterWithLock(eq(ticketIds), eq(LocalDateTime.now(clock)));
+    then(ticketRepository).shouldHaveNoMoreInteractions();
+
   }
+
+  @Test
+  @DisplayName("요청받은 티켓 목록을 선점 시도하였으나 실패한 티켓이 있는 경우 TicketNofFoundException을 던진다.")
+  public void testWhenSomeTicketReservationFailed() {
+    // given
+    // Mocking member entity
+    Member mockMember = mock(Member.class);
+    // Mocking three ticket entities
+    List<Long> ticketIds = List.of(1L, 2L, 3L);
+    List<Ticket> tickets = List.of(mock(Ticket.class), mock(Ticket.class), mock(Ticket.class));
+    for (int i = 0; i < ticketIds.size(); i++) {
+      given(tickets.get(i).getId()).willReturn(ticketIds.get(i));
+    }
+    given(ticketRepository.findAllByIdAndLockedUntilAfterWithLock(eq(ticketIds),
+        eq(LocalDateTime.now(clock))))
+        .willReturn(tickets);
+    LocalDateTime validUntil = LocalDateTime.now(clock)
+        .plusSeconds(orderProperties.getPreoccupyExpireTime());
+    given(ticketRepository.lockTickets(eq(mockMember), eq(ticketIds), eq(validUntil)))
+        .willReturn(tickets.size() - 1);
+
+    // when
+    // then
+    assertThatThrownBy(() -> orderService.preoccupy(mockMember, ticketIds))
+        .isInstanceOf(TicketNotFoundException.class);
+    then(ticketRepository).should()
+        .findAllByIdAndLockedUntilAfterWithLock(eq(ticketIds), eq(LocalDateTime.now(clock)));
+    then(ticketRepository).should()
+        .lockTickets(eq(mockMember), eq(ticketIds), eq(validUntil));
+
+  }
+
 }

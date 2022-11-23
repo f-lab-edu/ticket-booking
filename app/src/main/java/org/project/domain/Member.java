@@ -10,11 +10,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor()
 @Table(name = "member")
 @Entity
 @Getter
+@Setter
 public class Member extends BaseTimeEntity {
 
   @Id
