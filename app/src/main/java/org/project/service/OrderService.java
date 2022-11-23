@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OrderService {
 
-  private final Clock clock;
+  private Clock clock;
   private final ConcertRepository concertRepository;
   private final OrderProperties orderProperties;
   private final PreoccupyRepository preoccupyRepository;
@@ -66,4 +66,7 @@ public class OrderService {
     return new PreoccupyResult(ticketIds, validUntil);
   }
 
+  void _setClock(Clock clock) {
+    this.clock = clock;
+  }
 }

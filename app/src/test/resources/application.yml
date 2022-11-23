@@ -21,3 +21,5 @@ spring:
 
   redis:
     port: 6379
+order:
+  preoccupy-expire-time: 10
