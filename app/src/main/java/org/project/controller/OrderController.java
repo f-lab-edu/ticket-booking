@@ -41,7 +41,7 @@ public class OrderController {
   @ResponseStatus(HttpStatus.OK)
   public PreoccupyResponse preoccupy(Member member, @Valid @RequestBody PreoccupyRequest request) {
 
-    PreoccupyResult preoccupyResult = orderService.preoccupy(request.getConcertId(), member);
-    return new PreoccupyResponse(preoccupyResult.getTicketId(), preoccupyResult.getValidUntil());
+    PreoccupyResult preoccupyResult = orderService.preoccupy(member, request.getTicketIds());
+    return new PreoccupyResponse(preoccupyResult.getTicketIds(), preoccupyResult.getValidUntil());
   }
 }
